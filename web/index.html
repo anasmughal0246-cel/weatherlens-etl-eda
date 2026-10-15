@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WeatherLens</title>
+<script src="chart.umd.js"></script>
+<style>
+  :root {
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --accent: #0ea5e9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  .hero {
+    background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 55%, #22d3ee 100%);
+    color: #fff;
+    padding: 28px 32px;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(29, 78, 216, .25);
+  }
+  .hero h1 { margin: 0; font-size: 2.2rem; }
+  .hero p { margin: 6px 0 0; opacity: .92; }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+    background: var(--card); border-radius: 16px; padding: 14px 18px;
+    margin: 18px 0; box-shadow: 0 2px 12px rgba(15, 23, 42, .06);
+  }
+  .filters label { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .filters select {
+    padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 1rem; background: #fff;
+  }
+  .sep { color: var(--muted); }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--card); border-radius: 16px; padding: 16px 18px;
+    border-left: 6px solid var(--accent); box-shadow: 0 2px 12px rgba(15, 23, 42, .08);
+  }
+  .card .label { color: var(--muted); font-size: .9rem; }
+  .card .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
+  .card .sub { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 14px; }
+  .tab {
+    border: 0; background: #e2e8f0; color: var(--text); padding: 10px 18px;
+    border-radius: 999px; font-size: 1rem; cursor: pointer; font-weight: 500;
+  }
+  .tab.active { background: var(--accent); color: #fff; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .box {
+    background: var(--card); border-radius: 16px; padding: 18px;
+    margin-bottom: 18px; box-shadow: 0 2px 12px rgba(15, 23, 42, .06);
+  }
+  .box h2 { margin: 0 0 12px; font-size: 1.1rem; }
+  .chart-h { position: relative; height: 340px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+
+  table.heat { table-layout: fixed; min-width: 420px; }
+  .heat td { text-align: center; padding: 7px 0; border: 2px solid #fff; border-radius: 4px; font-size: .75rem; }
+  .heat th { text-align: center; padding: 6px 0; font-size: .75rem; }
+  .heat th:first-child { width: 44px; }
+
+  button.dl {
+    margin-top: 12px; padding: 10px 18px; background: var(--accent); color: #fff;
+    border: 0; border-radius: 10px; font-size: 1rem; cursor: pointer;
+  }
+  .note { color: var(--muted); font-size: .85rem; margin-top: 8px; }
+  footer { text-align: center; color: var(--muted); margin-top: 30px; font-size: .9rem; }
+  #error { display: none; background: #fee2e2; color: #991b1b; padding: 14px; border-radius: 12px; margin-top: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>🌦️ WeatherLens</h1>
+    <p>Explore daily weather of Pakistani cities &nbsp;|&nbsp; Data: Open-Meteo API</p>
+  </div>
+
+  <div id="error"></div>
+
+  <div class="filters">
+    <strong>Cities:</strong>
+    <span id="cityBoxes"></span>
+    <span class="sep">|</span>
+    <strong>Years:</strong>
+    <select id="yearFrom"></select>
+    <span class="sep">to</span>
+    <select id="yearTo"></select>
+  </div>
+
+  <div class="cards">
+    <div class="card"><div class="label">📅 Days of data</div><div class="value" id="mDays">-</div></div>
+    <div class="card"><div class="label">🌡️ Average temperature</div><div class="value" id="mAvg">-</div></div>
+    <div class="card"><div class="label">🔥 Hottest day</div><div class="value" id="mHot">-</div><div class="sub" id="mHotSub"></div></div>
+    <div class="card"><div class="label">☔ Rainy days</div><div class="value" id="mRain">-</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="temp">🌡️ Temperature</button>
+    <button class="tab" data-tab="rain">🌧️ Rainfall</button>
+    <button class="tab" data-tab="city">🏙️ City comparison</button>
+    <button class="tab" data-tab="data">📄 Data</button>
+  </div>
+
+  <div class="panel active" id="temp">
+    <div class="box">
+      <h2>Temperature over time (30-day average)</h2>
+      <div class="chart-h"><canvas id="cTrend"></canvas></div>
+    </div>
+    <div class="grid2">
+      <div class="box">
+        <h2>Average temperature by month</h2>
+        <div class="chart-h"><canvas id="cMonthly"></canvas></div>
+      </div>
+      <div class="box">
+        <h2>Heatmap: month vs year (°C)</h2>
+        <div class="scroll"><table class="heat" id="heat"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="rain">
+    <div class="box">
+      <h2>Average rainfall by month (mm/day)</h2>
+      <div class="chart-h"><canvas id="cRain"></canvas></div>
+    </div>
+    <div class="box">
+      <h2>Top 5 rainiest days</h2>
+      <div class="scroll"><table id="topRain"></table></div>
+    </div>
+  </div>
+
+  <div class="panel" id="city">
+    <div class="box">
+      <h2>Summary by city</h2>
+      <div class="scroll"><table id="summary"></table></div>
+    </div>
+    <div class="box">
+      <h2>Average temperature by city (°C)</h2>
+      <div class="chart-h"><canvas id="cCity"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" id="data">
+    <div class="box">
+      <h2>Data</h2>
+      <div class="scroll"><table id="rows"></table></div>
+      <div class="note" id="rowsNote"></div>
+      <button class="dl" id="dl">⬇️ Download as CSV</button>
+    </div>
+  </div>
+
+  <footer>WeatherLens | Project 1: ETL + EDA Pipeline</footer>
+</div>
+
+<script>
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const COLORS = { Lahore: "#ef4444", Karachi: "#0ea5e9", Islamabad: "#22c55e" };
+const FALLBACK = ["#a855f7", "#f59e0b", "#14b8a6", "#ec4899"];
+
+let ALL = [];            // every row: {city, date, year, month, tmean, tmax, tmin, rain, wind}
+let CITIES = [];
+let selected = new Set();
+let charts = {};
+
+const colorOf = (city) => COLORS[city] || FALLBACK[CITIES.indexOf(city) % FALLBACK.length];
+const mean = (a) => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
+const fmt = (x, d = 1) => x === null || x === undefined ? "-" : x.toFixed(d);
+
+// ---------- load data ----------
+fetch("data.json")
+  .then((r) => { if (!r.ok) throw new Error("data.json not found"); return r.json(); })
+  .then(init)
+  .catch((e) => {
+    const box = document.getElementById("error");
+    box.style.display = "block";
+    box.textContent = "Could not load data.json. Run 'py export_data.py' and upload web/data.json. (" + e.message + ")";
+  });
+
+function init(data) {
+  CITIES = Object.keys(data.cities);
+  for (const city of CITIES) {
+    const c = data.cities[city];
+    for (let i = 0; i < c.date.length; i++) {
+      ALL.push({
+        city, date: c.date[i],
+        year: +c.date[i].slice(0, 4), month: +c.date[i].slice(5, 7),
+        tmean: c.tmean[i], tmax: c.tmax[i], tmin: c.tmin[i], rain: c.rain[i], wind: c.wind[i],
+      });
+    }
+  }
+  selected = new Set(CITIES);
+
+  // city checkboxes
+  document.getElementById("cityBoxes").innerHTML = CITIES.map((c) =>
+    `<label><input type="checkbox" value="${c}" checked>` +
+    `<span class="dot" style="background:${colorOf(c)}"></span>${c}</label>`
+  ).join(" &nbsp; ");
+  document.querySelectorAll("#cityBoxes input").forEach((el) =>
+    el.addEventListener("change", () => {
+      el.checked ? selected.add(el.value) : selected.delete(el.value);
+      render();
+    })
+  );
+
+  // year selects
+  const years = [...new Set(ALL.map((r) => r.year))].sort();
+  const opts = years.map((y) => `<option value="${y}">${y}</option>`).join("");
+  const from = document.getElementById("yearFrom");
+  const to = document.getElementById("yearTo");
+  from.innerHTML = opts; to.innerHTML = opts;
+  from.value = years[0]; to.value = years[years.length - 1];
+  from.addEventListener("change", render);
+  to.addEventListener("change", render);
+
+  // tabs
+  document.querySelectorAll(".tab").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+      // charts made while a tab was hidden need a resize once it is visible
+      Object.values(charts).forEach((c) => c.resize());
+    })
+  );
+
+  document.getElementById("dl").addEventListener("click", downloadCSV);
+  render();
+}
+
+function filtered() {
+  const y1 = +document.getElementById("yearFrom").value;
+  const y2 = +document.getElementById("yearTo").value;
+  return ALL.filter((r) => selected.has(r.city) && r.year >= Math.min(y1, y2) && r.year <= Math.max(y1, y2));
+}
+
+// ---------- draw ----------
+function makeChart(id, config) {
+  if (charts[id]) charts[id].destroy();
+  config.options.animation = false;
+  charts[id] = new Chart(document.getElementById(id), config);
+}
+
+function render() {
+  const rows = filtered();
+  if (rows.length === 0) {
+    document.getElementById("mDays").textContent = "0";
+    ["mAvg", "mHot", "mRain"].forEach((id) => (document.getElementById(id).textContent = "-"));
+    document.getElementById("mHotSub").textContent = "Select at least one city";
+    return;
+  }
+
+  // numbers
+  const hottest = rows.reduce((a, b) => (b.tmax > a.tmax ? b : a));
+  document.getElementById("mDays").textContent = rows.length.toLocaleString();
+  document.getElementById("mAvg").textContent = fmt(mean(rows.map((r) => r.tmean))) + " °C";
+  document.getElementById("mHot").textContent = fmt(hottest.tmax) + " °C";
+  document.getElementById("mHotSub").textContent = hottest.city + ", " + hottest.date;
+  document.getElementById("mRain").textContent = fmt((rows.filter((r) => r.rain >= 1).length / rows.length) * 100) + " %";
+
+  drawTrend(rows); drawMonthly(rows); drawHeatmap(rows);
+  drawRain(rows); drawTopRain(rows);
+  drawSummary(rows); drawCityChart(rows);
+  drawRows(rows);
+}
+
+function drawTrend(rows) {
+  const dates = [...new Set(rows.map((r) => r.date))].sort();
+  const datasets = [...selected].map((city) => {
+    const byDate = {};
+    rows.filter((r) => r.city === city).forEach((r) => (byDate[r.date] = r.tmean));
+    const vals = dates.map((d) => byDate[d]);
+    const roll = vals.map((_, i) => {
+      if (i < 29) return null;
+      const w = vals.slice(i - 29, i + 1).filter((v) => v !== null && v !== undefined);
+      return w.length === 30 ? mean(w) : null;
+    });
+    return { label: city, data: roll, borderColor: colorOf(city), backgroundColor: colorOf(city),
+             borderWidth: 2.5, pointRadius: 0, tension: 0.25 };
+  });
+  makeChart("cTrend", {
+    type: "line",
+    data: { labels: dates, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      scales: {
+        x: { ticks: { maxTicksLimit: 8 } },
+        y: { title: { display: true, text: "Temperature (°C)" } },
+      },
+    },
+  });
+}
+
+function monthlyMeans(rows, city) {
+  return MONTHS.map((_, m) => {
+    const v = rows.filter((r) => r.city === city && r.month === m + 1).map((r) => r.tmean);
+    return mean(v);
+  });
+}
+
+function drawMonthly(rows) {
+  makeChart("cMonthly", {
+    type: "bar",
+    data: {
+      labels: MONTHS,
+      datasets: [...selected].map((city) => ({
+        label: city, data: monthlyMeans(rows, city),
+        backgroundColor: colorOf(city), borderRadius: 4,
+      })),
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      scales: { y: { title: { display: true, text: "Temperature (°C)" } } },
+    },
+  });
+}
+
+function heatColor(t, lo, hi) {
+  const x = hi === lo ? 0.5 : (t - lo) / (hi - lo);      // 0..1
+  // blue -> yellow -> red
+  const stops = [[59, 130, 246], [253, 224, 71], [239, 68, 68]];
+  const p = x < 0.5 ? x * 2 : (x - 0.5) * 2;
+  const a = x < 0.5 ? stops[0] : stops[1];
+  const b = x < 0.5 ? stops[1] : stops[2];
+  const c = a.map((v, i) => Math.round(v + (b[i] - v) * p));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+
+function drawHeatmap(rows) {
+  const years = [...new Set(rows.map((r) => r.year))].sort();
+  const cell = {};
+  let all = [];
+  years.forEach((y) => MONTHS.forEach((_, m) => {
+    const v = rows.filter((r) => r.year === y && r.month === m + 1).map((r) => r.tmean);
+    const mv = mean(v);
+    cell[y + "-" + m] = mv;
+    if (mv !== null) all.push(mv);
+  }));
+  const lo = Math.min(...all), hi = Math.max(...all);
+  let html = "<tr><th></th>" + MONTHS.map((m) => `<th>${m}</th>`).join("") + "</tr>";
+  years.forEach((y) => {
+    html += `<tr><th>${y}</th>`;
+    MONTHS.forEach((_, m) => {
+      const v = cell[y + "-" + m];
+      html += v === null ? "<td></td>" : `<td style="background:${heatColor(v, lo, hi)}">${v.toFixed(0)}</td>`;
+    });
+    html += "</tr>";
+  });
+  document.getElementById("heat").innerHTML = html;
+}
+
+function drawRain(rows) {
+  const vals = MONTHS.map((_, m) => mean(rows.filter((r) => r.month === m + 1).map((r) => r.rain)));
+  const max = Math.max(...vals);
+  makeChart("cRain", {
+    type: "bar",
+    data: {
+      labels: MONTHS,
+      datasets: [{
+        label: "Rainfall (mm/day)", data: vals, borderRadius: 5,
+        backgroundColor: vals.map((v) => `rgba(37, 99, 235, ${0.35 + 0.65 * (v / max)})`),
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { title: { display: true, text: "Rainfall (mm/day)" } } },
+    },
+  });
+}
+
+function drawTopRain(rows) {
+  const top = [...rows].sort((a, b) => b.rain - a.rain).slice(0, 5);
+  document.getElementById("topRain").innerHTML =
+    "<tr><th>City</th><th>Date</th><th>Rainfall (mm)</th></tr>" +
+    top.map((r) => `<tr><td>${r.city}</td><td>${r.date}</td><td>${fmt(r.rain)}</td></tr>`).join("");
+}
+
+function drawSummary(rows) {
+  let html = "<tr><th>City</th><th>Avg temp (°C)</th><th>Max temp (°C)</th><th>Min temp (°C)</th>" +
+             "<th>Avg rain (mm/day)</th><th>Rainy days (%)</th></tr>";
+  [...selected].forEach((city) => {
+    const r = rows.filter((x) => x.city === city);
+    if (!r.length) return;
+    html += `<tr><td><span class="dot" style="background:${colorOf(city)}"></span> ${city}</td>` +
+      `<td>${fmt(mean(r.map((x) => x.tmean)), 2)}</td>` +
+      `<td>${fmt(Math.max(...r.map((x) => x.tmax)), 2)}</td>` +
+      `<td>${fmt(Math.min(...r.map((x) => x.tmin)), 2)}</td>` +
+      `<td>${fmt(mean(r.map((x) => x.rain)), 2)}</td>` +
+      `<td>${fmt((r.filter((x) => x.rain >= 1).length / r.length) * 100, 2)}</td></tr>`;
+  });
+  document.getElementById("summary").innerHTML = html;
+}
+
+function drawCityChart(rows) {
+  const cities = [...selected];
+  makeChart("cCity", {
+    type: "bar",
+    data: {
+      labels: cities,
+      datasets: [{
+        label: "Average temperature (°C)",
+        data: cities.map((c) => mean(rows.filter((r) => r.city === c).map((r) => r.tmean))),
+        backgroundColor: cities.map(colorOf), borderRadius: 6,
+      }],
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+  });
+}
+
+function drawRows(rows) {
+  const sorted = [...rows].sort((a, b) => (a.date < b.date ? 1 : -1));
+  const shown = sorted.slice(0, 200);
+  document.getElementById("rows").innerHTML =
+    "<tr><th>City</th><th>Date</th><th>Temp mean</th><th>Temp max</th><th>Temp min</th><th>Rain (mm)</th><th>Wind max</th></tr>" +
+    shown.map((r) => `<tr><td>${r.city}</td><td>${r.date}</td><td>${fmt(r.tmean)}</td><td>${fmt(r.tmax)}</td>` +
+                     `<td>${fmt(r.tmin)}</td><td>${fmt(r.rain)}</td><td>${fmt(r.wind)}</td></tr>`).join("");
+  document.getElementById("rowsNote").textContent =
+    `Showing latest ${shown.length} of ${rows.length.toLocaleString()} rows. The CSV has all rows.`;
+}
+
+function downloadCSV() {
+  const rows = filtered();
+  const head = "city,date,temp_mean,temp_max,temp_min,rain_mm,wind_max\n";
+  const body = rows.map((r) => [r.city, r.date, r.tmean, r.tmax, r.tmin, r.rain, r.wind].join(",")).join("\n");
+  const url = URL.createObjectURL(new Blob([head + body], { type: "text/csv" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = "weather_data.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
