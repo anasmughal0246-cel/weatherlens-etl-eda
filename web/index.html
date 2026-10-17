@@ -148,6 +148,17 @@
   .citycard dt { color: var(--muted); }
   .citycard dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
 
+  /* month guide */
+  .monthpills { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
+  .pill { border: 1px solid var(--line); background: var(--surface-2); padding: 6px 14px; border-radius: 999px; cursor: pointer; font-weight: 600; }
+  .pill:hover { border-color: var(--accent); }
+  .pill[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 24px; }
+  .badge { font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+  .badge.pick { background: var(--accent); color: var(--on-accent); }
+
+  .dateinput { padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); margin-bottom: 8px; }
+
   /* data tab */
   .search { width: 100%; max-width: 320px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); margin-bottom: 12px; }
   .btn { margin-top: 12px; padding: 10px 18px; background: var(--accent); color: var(--on-accent); border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; }
@@ -215,6 +226,8 @@
     <button class="tab" role="tab" aria-selected="true" data-tab="temp">Temperature</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="rain">Rainfall</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="city">Cities</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="month">Month guide</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="day">Any date</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="data">Data</button>
   </div>
 
@@ -260,6 +273,26 @@
     </div>
   </div>
 
+  <div class="panel" id="month">
+    <div class="box">
+      <h2>Which city suits which month?</h2>
+      <div class="hint">Pick a month. The comfort pick is the city whose average temperature is closest to 24 °C.</div>
+      <div class="monthpills" id="monthPills" role="group" aria-label="Month"></div>
+      <div class="note" id="monthSummary"></div>
+    </div>
+    <div class="citycards" id="monthCards"></div>
+  </div>
+
+  <div class="panel" id="day">
+    <div class="box">
+      <h2>Weather on any date</h2>
+      <div class="hint" id="dayHint">Pick a date to see every city on that day.</div>
+      <input class="dateinput" id="dayInput" type="date" aria-label="Date">
+      <div class="note" id="daySummary"></div>
+    </div>
+    <div class="citycards" id="dayCards"></div>
+  </div>
+
   <div class="panel" id="data">
     <div class="box">
       <h2>Daily records</h2>
@@ -279,8 +312,9 @@ const MONTH_FULL = ["January","February","March","April","May","June","July","Au
 const COLORS = { Lahore: "#ef4444", Karachi: "#0ea5e9", Islamabad: "#22c55e" };
 const FALLBACK = ["#a855f7", "#f59e0b", "#14b8a6", "#ec4899"];
 
-let ALL = [], CITIES = [], selected = new Set(), charts = {}, query = "";
+let ALL = [], CITIES = [], selected = new Set(), charts = {}, query = "", monthSel = new Date().getMonth() + 1;
 
+const sel = () => CITIES.filter((c) => selected.has(c));
 const colorOf = (c) => COLORS[c] || FALLBACK[CITIES.indexOf(c) % FALLBACK.length];
 const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
 const std = (a) => { const m = mean(a); return Math.sqrt(mean(a.map((x) => (x - m) ** 2))); };
@@ -349,6 +383,23 @@ function init(data) {
   $("yearFrom").addEventListener("change", render);
   $("yearTo").addEventListener("change", render);
 
+  $("monthPills").innerHTML = MONTHS.map((m, i) =>
+    `<button type="button" class="pill" data-m="${i + 1}" aria-pressed="${i + 1 === monthSel}">${m}</button>`).join("");
+  document.querySelectorAll(".pill").forEach((el) =>
+    el.addEventListener("click", () => {
+      monthSel = +el.dataset.m;
+      document.querySelectorAll(".pill").forEach((b) => b.setAttribute("aria-pressed", +b.dataset.m === monthSel));
+      drawMonth(filtered());
+    })
+  );
+
+  const allDates = ALL.map((r) => r.date).sort();
+  const dayInput = $("dayInput");
+  dayInput.min = allDates[0]; dayInput.max = allDates[allDates.length - 1]; dayInput.value = allDates[allDates.length - 1];
+  $("dayHint").textContent = `Pick a date between ${dayInput.min} and ${dayInput.max} to see every city on that day.`;
+  dayInput.addEventListener("input", drawDay);
+  drawDay();
+
   document.querySelectorAll(".tab").forEach((btn) =>
     btn.addEventListener("click", () => {
       document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", "false"));
@@ -384,7 +435,7 @@ function render() {
   const y1 = Math.min(+$("yearFrom").value, +$("yearTo").value), y2 = Math.max(+$("yearFrom").value, +$("yearTo").value);
   $("heroTitle").textContent = `Pakistan weather, ${y1}${y1 === y2 ? "" : " to " + y2}`;
   $("heroSub").textContent = selected.size
-    ? `Daily temperature, rainfall and wind for ${[...selected].join(", ")}. Data from the Open-Meteo API.`
+    ? `Daily temperature, rainfall and wind for ${sel().join(", ")}. Data from the Open-Meteo API.`
     : "Select at least one city above.";
 
   if (rows.length === 0) {
@@ -392,6 +443,7 @@ function render() {
     ["mAvg", "mHot", "mRain"].forEach((id) => ($(id).textContent = "-"));
     $("mHotSub").textContent = "Select at least one city";
     $("insights").innerHTML = "<li>Select at least one city to see highlights.</li>";
+    $("monthCards").innerHTML = ""; $("monthSummary").textContent = "";
     return;
   }
 
@@ -407,6 +459,7 @@ function render() {
   drawTrend(rows); drawMonthly(rows); drawHeatmap(rows);
   drawRain(rows); drawTopRain(rows);
   drawCities(rows);
+  drawMonth(rows);
   drawRows(rows);
 }
 
@@ -422,7 +475,7 @@ function drawInsights(rows) {
     `Only <b>${fmt(rainyPct, 0)}%</b> of days get 1 mm of rain or more.`,
   ];
   if (selected.size > 1) {
-    const sd = [...selected].map((c) => [c, std(rows.filter((r) => r.city === c).map((r) => r.tmean))]);
+    const sd = sel().map((c) => [c, std(rows.filter((r) => r.city === c).map((r) => r.tmean))]);
     sd.sort((a, b) => a[1] - b[1]);
     items.push(`<b>${sd[0][0]}</b> has the steadiest temperature (spread of ${fmt(sd[0][1])} °C).`);
     items.push(`<b>${sd[sd.length - 1][0]}</b> swings the most between seasons (spread of ${fmt(sd[sd.length - 1][1])} °C).`);
@@ -432,7 +485,7 @@ function drawInsights(rows) {
 
 function drawTrend(rows) {
   const dates = [...new Set(rows.map((r) => r.date))].sort();
-  const datasets = [...selected].map((city) => {
+  const datasets = sel().map((city) => {
     const byDate = {};
     rows.filter((r) => r.city === city).forEach((r) => (byDate[r.date] = r.tmean));
     const vals = dates.map((d) => byDate[d]);
@@ -461,7 +514,7 @@ function drawTrend(rows) {
 function drawMonthly(rows) {
   makeChart("cMonthly", {
     type: "bar",
-    data: { labels: MONTHS, datasets: [...selected].map((city) => ({
+    data: { labels: MONTHS, datasets: sel().map((city) => ({
       label: city, borderRadius: 4, backgroundColor: colorOf(city),
       data: MONTHS.map((_, m) => mean(rows.filter((r) => r.city === city && r.month === m + 1).map((r) => r.tmean))),
     })) },
@@ -526,7 +579,7 @@ function drawTopRain(rows) {
 }
 
 function drawCities(rows) {
-  const cities = [...selected];
+  const cities = sel();
   const stat = cities.map((c) => {
     const r = rows.filter((x) => x.city === c);
     return { c, avg: mean(r.map((x) => x.tmean)), max: Math.max(...r.map((x) => x.tmax)), min: Math.min(...r.map((x) => x.tmin)),
@@ -549,6 +602,55 @@ function drawCities(rows) {
       scales: { x: { title: { display: true, text: "Temperature (°C)" } }, y: { grid: { display: false } } },
     },
   });
+}
+
+function drawMonth(rows) {
+  const stat = sel().map((c) => {
+    const r = rows.filter((x) => x.city === c && x.month === monthSel);
+    if (!r.length) return null;
+    return { c, avg: mean(r.map((x) => x.tmean)), hi: mean(r.map((x) => x.tmax)), lo: mean(r.map((x) => x.tmin)),
+             rain: mean(r.map((x) => x.rain)), rainy: (r.filter((x) => x.rain >= 1).length / r.length) * 100 };
+  }).filter(Boolean);
+  if (!stat.length) { $("monthCards").innerHTML = ""; $("monthSummary").textContent = "No data for this month."; return; }
+
+  const by = (f, pick) => stat.reduce((a, b) => (pick(f(b), f(a)) ? b : a));
+  const comfort = by((s) => Math.abs(s.avg - 24), (x, y) => x < y);
+  const tags = { };
+  const add = (city, t) => (tags[city] = (tags[city] || []).concat(t));
+  add(comfort.c, "Comfort pick");
+  if (stat.length > 1) {
+    add(by((s) => s.avg, (x, y) => x < y).c, "Coolest");
+    add(by((s) => s.avg, (x, y) => x > y).c, "Warmest");
+    add(by((s) => s.rainy, (x, y) => x < y).c, "Driest");
+    add(by((s) => s.rainy, (x, y) => x > y).c, "Wettest");
+  }
+  $("monthCards").innerHTML = stat.map((s) =>
+    `<article class="citycard" style="--c:${colorOf(s.c)}"><h3>${s.c} in ${MONTH_FULL[monthSel - 1]}</h3>
+     <div class="big">${fmt(s.avg)} °C</div>
+     <dl><dt>Average high</dt><dd>${fmt(s.hi)} °C</dd><dt>Average low</dt><dd>${fmt(s.lo)} °C</dd>
+     <dt>Rainy days</dt><dd>${fmt(s.rainy, 0)} %</dd><dt>Rain per day</dt><dd>${fmt(s.rain, 1)} mm</dd></dl>
+     <div class="badges">${(tags[s.c] || []).map((t) => `<span class="badge${t === "Comfort pick" ? " pick" : ""}">${t}</span>`).join("")}</div>
+     </article>`).join("");
+  $("monthSummary").textContent = `In ${MONTH_FULL[monthSel - 1]}, ${comfort.c} is the comfort pick at ${fmt(comfort.avg)} °C on average.`;
+}
+
+function drawDay() {
+  const date = $("dayInput").value;
+  const rows = ALL.filter((r) => r.date === date);
+  if (!rows.length) {
+    $("dayCards").innerHTML = "";
+    $("daySummary").textContent = "No data for this date. Pick a date inside the range above.";
+    return;
+  }
+  const nice = new Date(date + "T00:00:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const hot = rows.reduce((a, b) => (b.tmax > a.tmax ? b : a));
+  const wet = rows.filter((r) => r.rain >= 1).map((r) => r.city);
+  $("daySummary").textContent = `${nice}. Hottest: ${hot.city} (${fmt(hot.tmax)} °C). ` + (wet.length ? `Rain in ${wet.join(", ")}.` : "No rain in any city.");
+  $("dayCards").innerHTML = rows.map((r) =>
+    `<article class="citycard" style="--c:${colorOf(r.city)}"><h3>${r.city}</h3><div class="big">${fmt(r.tmean)} °C</div>
+     <dl><dt>High</dt><dd>${fmt(r.tmax)} °C</dd><dt>Low</dt><dd>${fmt(r.tmin)} °C</dd>
+     <dt>Rain</dt><dd>${r.rain >= 1 ? fmt(r.rain) + " mm" : r.rain > 0 ? "Light, " + fmt(r.rain) + " mm" : "Dry"}</dd>
+     <dt>Wind (max)</dt><dd>${fmt(r.wind)} km/h</dd></dl></article>`).join("");
 }
 
 function drawRows(rows) {
