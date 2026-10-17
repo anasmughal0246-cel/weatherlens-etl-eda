@@ -4,198 +4,317 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WeatherLens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
 <script src="chart.umd.js"></script>
 <style>
+  /* Layout: sticky top bar, compact hero with filters, KPI row, highlights, tabs. */
   :root {
-    --bg: #f1f5f9;
-    --card: #ffffff;
-    --text: #0f172a;
-    --muted: #64748b;
-    --line: #e2e8f0;
-    --accent: #0ea5e9;
+    --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-head: "Sora", "Manrope", system-ui, sans-serif;
+    --bg: #f3f5f9;
+    --surface: #ffffff;
+    --surface-2: #f7f9fc;
+    --text: #0f1b2d;
+    --muted: #5b6b82;
+    --line: #e1e7f0;
+    --accent: #0e7490;
+    --accent-soft: #dff1f6;
+    --on-accent: #ffffff;
+    --hero-a: #0b2a4a;
+    --hero-b: #0e7490;
+    --shadow: 0 1px 2px rgba(15, 27, 45, .06), 0 8px 24px rgba(15, 27, 45, .06);
+    color-scheme: light;
   }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1220; --surface: #121b2e; --surface-2: #17223a; --text: #e6edf7; --muted: #94a5bf;
+      --line: #223049; --accent: #38bdf8; --accent-soft: #11324a; --on-accent: #06222f;
+      --hero-a: #0b1f38; --hero-b: #0b5d75;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1220; --surface: #121b2e; --surface-2: #17223a; --text: #e6edf7; --muted: #94a5bf;
+    --line: #223049; --accent: #38bdf8; --accent-soft: #11324a; --on-accent: #06222f;
+    --hero-a: #0b1f38; --hero-b: #0b5d75;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .3);
+    color-scheme: dark;
+  }
+
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.5;
   }
-  .wrap { max-width: 1200px; margin: 0 auto; padding: 20px 16px 40px; }
+  h1, h2, h3 { font-family: var(--font-head); margin: 0; letter-spacing: -.01em; }
+  button, select, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
+  .wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+  /* top bar */
+  .topbar { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-head); font-weight: 700; font-size: 1.15rem; }
+  .brand svg { width: 28px; height: 28px; }
+  .tools { display: flex; align-items: center; gap: 10px; }
+  .iconbtn {
+    border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px;
+    padding: 7px 12px; cursor: pointer; font-weight: 600; font-size: .9rem;
+  }
+  .iconbtn:hover { border-color: var(--accent); }
+
+  /* hero + filters */
   .hero {
-    background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 55%, #22d3ee 100%);
-    color: #fff;
-    padding: 28px 32px;
-    border-radius: 20px;
-    box-shadow: 0 8px 24px rgba(29, 78, 216, .25);
+    margin-top: 18px; border-radius: 20px; padding: 26px 28px 22px; color: #fff;
+    background:
+      radial-gradient(circle at 88% 12%, rgba(255, 214, 102, .35), transparent 38%),
+      linear-gradient(135deg, var(--hero-a), var(--hero-b));
   }
-  .hero h1 { margin: 0; font-size: 2.2rem; }
-  .hero p { margin: 6px 0 0; opacity: .92; }
+  .hero h1 { font-size: clamp(1.5rem, 4.5vw, 2.1rem); line-height: 1.2; }
+  .hero p { margin: 6px 0 0; opacity: .88; max-width: 60ch; }
+  .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .28);
+    color: #fff; padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: .92rem;
+  }
+  .chip .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+  .chip[aria-pressed="false"] { opacity: .55; }
+  .chip[aria-pressed="false"] .dot { background: transparent; box-shadow: inset 0 0 0 2px #fff; }
+  .years { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: .92rem; }
+  .years select {
+    background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .3); color: #fff;
+    border-radius: 10px; padding: 6px 10px;
+  }
+  .years select option { color: #0f1b2d; }
 
-  .filters {
-    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
-    background: var(--card); border-radius: 16px; padding: 14px 18px;
-    margin: 18px 0; box-shadow: 0 2px 12px rgba(15, 23, 42, .06);
-  }
-  .filters label { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
-  .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-  .filters select {
-    padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px;
-    font-size: 1rem; background: #fff;
-  }
-  .sep { color: var(--muted); }
+  /* KPI */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 18px; }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); min-width: 0; }
+  .kpi .label { color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .kpi .value { font-family: var(--font-head); font-size: 1.75rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .kpi .sub { color: var(--muted); font-size: .85rem; margin-top: 2px; }
 
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-  .card {
-    background: var(--card); border-radius: 16px; padding: 16px 18px;
-    border-left: 6px solid var(--accent); box-shadow: 0 2px 12px rgba(15, 23, 42, .08);
-  }
-  .card .label { color: var(--muted); font-size: .9rem; }
-  .card .value { font-size: 1.8rem; font-weight: 700; margin-top: 4px; }
-  .card .sub { color: var(--muted); font-size: .85rem; margin-top: 2px; }
+  /* highlights */
+  .highlights { margin-top: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; box-shadow: var(--shadow); }
+  .highlights h2 { font-size: .9rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 10px; }
+  .highlights ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 24px; }
+  .highlights li { padding-left: 16px; position: relative; }
+  .highlights li::before { content: ""; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .highlights b { font-weight: 700; }
 
-  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 14px; }
+  /* tabs */
+  .tabs { display: flex; gap: 6px; margin: 26px 0 14px; overflow-x: auto; border-bottom: 1px solid var(--line); }
   .tab {
-    border: 0; background: #e2e8f0; color: var(--text); padding: 10px 18px;
-    border-radius: 999px; font-size: 1rem; cursor: pointer; font-weight: 500;
+    background: none; border: 0; padding: 10px 16px; cursor: pointer; font-weight: 600; color: var(--muted);
+    border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap;
   }
-  .tab.active { background: var(--accent); color: #fff; }
-
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
   .panel { display: none; }
   .panel.active { display: block; }
-  .box {
-    background: var(--card); border-radius: 16px; padding: 18px;
-    margin-bottom: 18px; box-shadow: 0 2px 12px rgba(15, 23, 42, .06);
-  }
-  .box h2 { margin: 0 0 12px; font-size: 1.1rem; }
-  .chart-h { position: relative; height: 340px; }
-  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
 
-  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
-  th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); }
-  th { color: var(--muted); font-weight: 600; }
+  .box { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; margin-bottom: 18px; box-shadow: var(--shadow); min-width: 0; }
+  .box h2 { font-size: 1.02rem; }
+  .box .hint { color: var(--muted); font-size: .86rem; margin: 2px 0 12px; }
+  .chart-h { position: relative; height: 330px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; }
+  .grid2 > .box { margin-bottom: 0; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 700; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; }
   .scroll { overflow-x: auto; }
 
-  table.heat { table-layout: fixed; min-width: 420px; }
-  .heat td { text-align: center; padding: 7px 0; border: 2px solid #fff; border-radius: 4px; font-size: .75rem; }
-  .heat th { text-align: center; padding: 6px 0; font-size: .75rem; }
-  .heat th:first-child { width: 44px; }
+  table.heat { table-layout: fixed; min-width: 440px; }
+  .heat td { text-align: center; padding: 7px 0; border: 2px solid var(--surface); border-radius: 5px; font-size: .75rem; font-weight: 600; }
+  .heat th { text-align: center; padding: 6px 0; font-size: .7rem; border: 0; }
+  .heat th:first-child { width: 46px; }
+  .legend { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--muted); font-size: .8rem; }
+  .legend .bar { height: 8px; width: 140px; border-radius: 4px; background: linear-gradient(90deg, rgb(59,130,246), rgb(253,224,71), rgb(239,68,68)); }
 
-  button.dl {
-    margin-top: 12px; padding: 10px 18px; background: var(--accent); color: #fff;
-    border: 0; border-radius: 10px; font-size: 1rem; cursor: pointer;
-  }
+  /* city cards */
+  .citycards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .citycard { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--c); border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .citycard h3 { font-size: 1.05rem; }
+  .citycard .big { font-family: var(--font-head); font-size: 2rem; font-weight: 700; margin: 6px 0 10px; }
+  .citycard dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0; font-size: .9rem; }
+  .citycard dt { color: var(--muted); }
+  .citycard dd { margin: 0; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* data tab */
+  .search { width: 100%; max-width: 320px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); margin-bottom: 12px; }
+  .btn { margin-top: 12px; padding: 10px 18px; background: var(--accent); color: var(--on-accent); border: 0; border-radius: 10px; font-weight: 700; cursor: pointer; }
   .note { color: var(--muted); font-size: .85rem; margin-top: 8px; }
-  footer { text-align: center; color: var(--muted); margin-top: 30px; font-size: .9rem; }
-  #error { display: none; background: #fee2e2; color: #991b1b; padding: 14px; border-radius: 12px; margin-top: 18px; }
+
+  #error { display: none; background: #fee2e2; color: #7f1d1d; padding: 14px 16px; border-radius: 12px; margin-top: 16px; }
+  footer { text-align: center; color: var(--muted); margin: 34px 0 30px; font-size: .88rem; }
+
+  @media (max-width: 560px) {
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .kpi { padding: 12px 14px; }
+    .kpi .value { font-size: 1.4rem; }
+    .hero { padding: 20px 18px 18px; border-radius: 16px; }
+    .chart-h { height: 280px; }
+    .box { padding: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="hero">
-    <h1>🌦️ WeatherLens</h1>
-    <p>Explore daily weather of Pakistani cities &nbsp;|&nbsp; Data: Open-Meteo API</p>
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="12" cy="11" r="6" fill="#f5b942"/>
+        <path d="M10 25a5 5 0 0 1 .8-9.9A7 7 0 0 1 24 17a4 4 0 0 1-.5 8H10z" fill="#38bdf8"/>
+      </svg>
+      WeatherLens
+    </div>
+    <div class="tools">
+      <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch light and dark mode">Dark mode</button>
+    </div>
   </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1 id="heroTitle">Pakistan weather at a glance</h1>
+    <p id="heroSub">Daily temperature, rainfall and wind for Pakistani cities. Data from the Open-Meteo API.</p>
+    <div class="filters">
+      <div class="chips" id="chips" role="group" aria-label="Cities"></div>
+      <div class="years">
+        <label for="yearFrom">From</label><select id="yearFrom"></select>
+        <label for="yearTo">to</label><select id="yearTo"></select>
+      </div>
+    </div>
+  </section>
 
   <div id="error"></div>
 
-  <div class="filters">
-    <strong>Cities:</strong>
-    <span id="cityBoxes"></span>
-    <span class="sep">|</span>
-    <strong>Years:</strong>
-    <select id="yearFrom"></select>
-    <span class="sep">to</span>
-    <select id="yearTo"></select>
-  </div>
+  <section class="kpis">
+    <div class="kpi"><div class="label">Days of data</div><div class="value" id="mDays">-</div><div class="sub" id="mDaysSub">&nbsp;</div></div>
+    <div class="kpi"><div class="label">Average temperature</div><div class="value" id="mAvg">-</div><div class="sub">daily mean</div></div>
+    <div class="kpi"><div class="label">Hottest day</div><div class="value" id="mHot">-</div><div class="sub" id="mHotSub">&nbsp;</div></div>
+    <div class="kpi"><div class="label">Rainy days</div><div class="value" id="mRain">-</div><div class="sub">days with 1 mm or more</div></div>
+  </section>
 
-  <div class="cards">
-    <div class="card"><div class="label">📅 Days of data</div><div class="value" id="mDays">-</div></div>
-    <div class="card"><div class="label">🌡️ Average temperature</div><div class="value" id="mAvg">-</div></div>
-    <div class="card"><div class="label">🔥 Hottest day</div><div class="value" id="mHot">-</div><div class="sub" id="mHotSub"></div></div>
-    <div class="card"><div class="label">☔ Rainy days</div><div class="value" id="mRain">-</div></div>
-  </div>
+  <section class="highlights">
+    <h2>What the data says</h2>
+    <ul id="insights"></ul>
+  </section>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="temp">🌡️ Temperature</button>
-    <button class="tab" data-tab="rain">🌧️ Rainfall</button>
-    <button class="tab" data-tab="city">🏙️ City comparison</button>
-    <button class="tab" data-tab="data">📄 Data</button>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-tab="temp">Temperature</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="rain">Rainfall</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="city">Cities</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="data">Data</button>
   </div>
 
   <div class="panel active" id="temp">
     <div class="box">
-      <h2>Temperature over time (30-day average)</h2>
+      <h2>Temperature over time</h2>
+      <div class="hint">30-day moving average of the daily mean. Hover to read values.</div>
       <div class="chart-h"><canvas id="cTrend"></canvas></div>
     </div>
     <div class="grid2">
       <div class="box">
         <h2>Average temperature by month</h2>
+        <div class="hint">Across all selected years.</div>
         <div class="chart-h"><canvas id="cMonthly"></canvas></div>
       </div>
       <div class="box">
-        <h2>Heatmap: month vs year (°C)</h2>
+        <h2>Month by year</h2>
+        <div class="hint">Mean temperature in °C for the selected cities.</div>
         <div class="scroll"><table class="heat" id="heat"></table></div>
+        <div class="legend"><span id="lgLo"></span><span class="bar"></span><span id="lgHi"></span></div>
       </div>
     </div>
   </div>
 
   <div class="panel" id="rain">
     <div class="box">
-      <h2>Average rainfall by month (mm/day)</h2>
+      <h2>Average rainfall by month</h2>
+      <div class="hint">Millimetres per day. The monsoon months stand out.</div>
       <div class="chart-h"><canvas id="cRain"></canvas></div>
     </div>
     <div class="box">
-      <h2>Top 5 rainiest days</h2>
+      <h2>Five rainiest days</h2>
       <div class="scroll"><table id="topRain"></table></div>
     </div>
   </div>
 
   <div class="panel" id="city">
+    <div class="citycards" id="cityCards"></div>
     <div class="box">
-      <h2>Summary by city</h2>
-      <div class="scroll"><table id="summary"></table></div>
-    </div>
-    <div class="box">
-      <h2>Average temperature by city (°C)</h2>
+      <h2>Typical daily temperature range</h2>
+      <div class="hint">From the average daily low to the average daily high.</div>
       <div class="chart-h"><canvas id="cCity"></canvas></div>
     </div>
   </div>
 
   <div class="panel" id="data">
     <div class="box">
-      <h2>Data</h2>
+      <h2>Daily records</h2>
+      <input class="search" id="search" type="search" placeholder="Filter by city or date, e.g. Lahore or 2024-07" aria-label="Filter rows">
       <div class="scroll"><table id="rows"></table></div>
       <div class="note" id="rowsNote"></div>
-      <button class="dl" id="dl">⬇️ Download as CSV</button>
+      <button class="btn" id="dl" type="button">Download CSV</button>
     </div>
   </div>
 
-  <footer>WeatherLens | Project 1: ETL + EDA Pipeline</footer>
-</div>
+  <footer>WeatherLens | ETL and EDA project | Data: Open-Meteo</footer>
+</main>
 
 <script>
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTH_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const COLORS = { Lahore: "#ef4444", Karachi: "#0ea5e9", Islamabad: "#22c55e" };
 const FALLBACK = ["#a855f7", "#f59e0b", "#14b8a6", "#ec4899"];
 
-let ALL = [];            // every row: {city, date, year, month, tmean, tmax, tmin, rain, wind}
-let CITIES = [];
-let selected = new Set();
-let charts = {};
+let ALL = [], CITIES = [], selected = new Set(), charts = {}, query = "";
 
-const colorOf = (city) => COLORS[city] || FALLBACK[CITIES.indexOf(city) % FALLBACK.length];
-const mean = (a) => a.length ? a.reduce((s, x) => s + x, 0) / a.length : null;
-const fmt = (x, d = 1) => x === null || x === undefined ? "-" : x.toFixed(d);
+const colorOf = (c) => COLORS[c] || FALLBACK[CITIES.indexOf(c) % FALLBACK.length];
+const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
+const std = (a) => { const m = mean(a); return Math.sqrt(mean(a.map((x) => (x - m) ** 2))); };
+const fmt = (x, d = 1) => (x === null || x === undefined || Number.isNaN(x) ? "-" : x.toFixed(d));
+const $ = (id) => document.getElementById(id);
+const cssv = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
-// ---------- load data ----------
+/* ---------- theme ---------- */
+function isDark() {
+  const t = document.documentElement.getAttribute("data-theme");
+  return t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function syncThemeUI() {
+  $("themeBtn").textContent = isDark() ? "Light mode" : "Dark mode";
+  Chart.defaults.color = cssv("--muted");
+  Chart.defaults.borderColor = cssv("--line");
+  Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+}
+try { const s = localStorage.getItem("wl-theme"); if (s) document.documentElement.setAttribute("data-theme", s); } catch (e) {}
+$("themeBtn").addEventListener("click", () => {
+  const next = isDark() ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  try { localStorage.setItem("wl-theme", next); } catch (e) {}
+  syncThemeUI();
+  if (ALL.length) render();
+});
+syncThemeUI();
+
+/* ---------- load ---------- */
 fetch("data.json")
   .then((r) => { if (!r.ok) throw new Error("data.json not found"); return r.json(); })
   .then(init)
   .catch((e) => {
-    const box = document.getElementById("error");
+    const box = $("error");
     box.style.display = "block";
     box.textContent = "Could not load data.json. Run 'py export_data.py' and upload web/data.json. (" + e.message + ")";
   });
@@ -205,87 +324,110 @@ function init(data) {
   for (const city of CITIES) {
     const c = data.cities[city];
     for (let i = 0; i < c.date.length; i++) {
-      ALL.push({
-        city, date: c.date[i],
-        year: +c.date[i].slice(0, 4), month: +c.date[i].slice(5, 7),
-        tmean: c.tmean[i], tmax: c.tmax[i], tmin: c.tmin[i], rain: c.rain[i], wind: c.wind[i],
-      });
+      ALL.push({ city, date: c.date[i], year: +c.date[i].slice(0, 4), month: +c.date[i].slice(5, 7),
+                 tmean: c.tmean[i], tmax: c.tmax[i], tmin: c.tmin[i], rain: c.rain[i], wind: c.wind[i] });
     }
   }
   selected = new Set(CITIES);
 
-  // city checkboxes
-  document.getElementById("cityBoxes").innerHTML = CITIES.map((c) =>
-    `<label><input type="checkbox" value="${c}" checked>` +
-    `<span class="dot" style="background:${colorOf(c)}"></span>${c}</label>`
-  ).join(" &nbsp; ");
-  document.querySelectorAll("#cityBoxes input").forEach((el) =>
-    el.addEventListener("change", () => {
-      el.checked ? selected.add(el.value) : selected.delete(el.value);
+  $("chips").innerHTML = CITIES.map((c) =>
+    `<button type="button" class="chip" aria-pressed="true" data-city="${c}" style="--c:${colorOf(c)}"><span class="dot"></span>${c}</button>`
+  ).join("");
+  document.querySelectorAll(".chip").forEach((el) =>
+    el.addEventListener("click", () => {
+      const on = el.getAttribute("aria-pressed") !== "true";
+      el.setAttribute("aria-pressed", on);
+      on ? selected.add(el.dataset.city) : selected.delete(el.dataset.city);
       render();
     })
   );
 
-  // year selects
   const years = [...new Set(ALL.map((r) => r.year))].sort();
   const opts = years.map((y) => `<option value="${y}">${y}</option>`).join("");
-  const from = document.getElementById("yearFrom");
-  const to = document.getElementById("yearTo");
-  from.innerHTML = opts; to.innerHTML = opts;
-  from.value = years[0]; to.value = years[years.length - 1];
-  from.addEventListener("change", render);
-  to.addEventListener("change", render);
+  $("yearFrom").innerHTML = opts; $("yearTo").innerHTML = opts;
+  $("yearFrom").value = years[0]; $("yearTo").value = years[years.length - 1];
+  $("yearFrom").addEventListener("change", render);
+  $("yearTo").addEventListener("change", render);
 
-  // tabs
   document.querySelectorAll(".tab").forEach((btn) =>
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".tab").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", "false"));
       document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(btn.dataset.tab).classList.add("active");
-      // charts made while a tab was hidden need a resize once it is visible
+      btn.setAttribute("aria-selected", "true");
+      $(btn.dataset.tab).classList.add("active");
       Object.values(charts).forEach((c) => c.resize());
     })
   );
 
-  document.getElementById("dl").addEventListener("click", downloadCSV);
+  $("search").addEventListener("input", (e) => { query = e.target.value.trim().toLowerCase(); drawRows(filtered()); });
+  $("dl").addEventListener("click", downloadCSV);
   render();
 }
 
 function filtered() {
-  const y1 = +document.getElementById("yearFrom").value;
-  const y2 = +document.getElementById("yearTo").value;
+  const y1 = +$("yearFrom").value, y2 = +$("yearTo").value;
   return ALL.filter((r) => selected.has(r.city) && r.year >= Math.min(y1, y2) && r.year <= Math.max(y1, y2));
 }
 
-// ---------- draw ----------
 function makeChart(id, config) {
   if (charts[id]) charts[id].destroy();
+  config.options = config.options || {};
   config.options.animation = false;
-  charts[id] = new Chart(document.getElementById(id), config);
+  config.options.responsive = true;
+  config.options.maintainAspectRatio = false;
+  charts[id] = new Chart($(id), config);
 }
 
+/* ---------- render ---------- */
 function render() {
   const rows = filtered();
+  const y1 = Math.min(+$("yearFrom").value, +$("yearTo").value), y2 = Math.max(+$("yearFrom").value, +$("yearTo").value);
+  $("heroTitle").textContent = `Pakistan weather, ${y1}${y1 === y2 ? "" : " to " + y2}`;
+  $("heroSub").textContent = selected.size
+    ? `Daily temperature, rainfall and wind for ${[...selected].join(", ")}. Data from the Open-Meteo API.`
+    : "Select at least one city above.";
+
   if (rows.length === 0) {
-    document.getElementById("mDays").textContent = "0";
-    ["mAvg", "mHot", "mRain"].forEach((id) => (document.getElementById(id).textContent = "-"));
-    document.getElementById("mHotSub").textContent = "Select at least one city";
+    $("mDays").textContent = "0";
+    ["mAvg", "mHot", "mRain"].forEach((id) => ($(id).textContent = "-"));
+    $("mHotSub").textContent = "Select at least one city";
+    $("insights").innerHTML = "<li>Select at least one city to see highlights.</li>";
     return;
   }
 
-  // numbers
   const hottest = rows.reduce((a, b) => (b.tmax > a.tmax ? b : a));
-  document.getElementById("mDays").textContent = rows.length.toLocaleString();
-  document.getElementById("mAvg").textContent = fmt(mean(rows.map((r) => r.tmean))) + " °C";
-  document.getElementById("mHot").textContent = fmt(hottest.tmax) + " °C";
-  document.getElementById("mHotSub").textContent = hottest.city + ", " + hottest.date;
-  document.getElementById("mRain").textContent = fmt((rows.filter((r) => r.rain >= 1).length / rows.length) * 100) + " %";
+  $("mDays").textContent = rows.length.toLocaleString();
+  $("mDaysSub").textContent = `${selected.size} ${selected.size === 1 ? "city" : "cities"}, ${rows[0] ? y1 + "-" + y2 : ""}`;
+  $("mAvg").textContent = fmt(mean(rows.map((r) => r.tmean))) + " °C";
+  $("mHot").textContent = fmt(hottest.tmax) + " °C";
+  $("mHotSub").textContent = hottest.city + ", " + hottest.date;
+  $("mRain").textContent = fmt((rows.filter((r) => r.rain >= 1).length / rows.length) * 100, 0) + " %";
 
+  drawInsights(rows);
   drawTrend(rows); drawMonthly(rows); drawHeatmap(rows);
   drawRain(rows); drawTopRain(rows);
-  drawSummary(rows); drawCityChart(rows);
+  drawCities(rows);
   drawRows(rows);
+}
+
+function drawInsights(rows) {
+  const tm = MONTHS.map((_, m) => mean(rows.filter((r) => r.month === m + 1).map((r) => r.tmean)));
+  const rm = MONTHS.map((_, m) => mean(rows.filter((r) => r.month === m + 1).map((r) => r.rain)));
+  const hi = tm.indexOf(Math.max(...tm)), lo = tm.indexOf(Math.min(...tm)), wet = rm.indexOf(Math.max(...rm));
+  const rainyPct = (rows.filter((r) => r.rain >= 1).length / rows.length) * 100;
+  const items = [
+    `<b>${MONTH_FULL[hi]}</b> is the hottest month, averaging ${fmt(tm[hi])} °C.`,
+    `<b>${MONTH_FULL[lo]}</b> is the coldest, averaging ${fmt(tm[lo])} °C.`,
+    `<b>${MONTH_FULL[wet]}</b> is the wettest month, with ${fmt(rm[wet])} mm of rain per day.`,
+    `Only <b>${fmt(rainyPct, 0)}%</b> of days get 1 mm of rain or more.`,
+  ];
+  if (selected.size > 1) {
+    const sd = [...selected].map((c) => [c, std(rows.filter((r) => r.city === c).map((r) => r.tmean))]);
+    sd.sort((a, b) => a[1] - b[1]);
+    items.push(`<b>${sd[0][0]}</b> has the steadiest temperature (spread of ${fmt(sd[0][1])} °C).`);
+    items.push(`<b>${sd[sd.length - 1][0]}</b> swings the most between seasons (spread of ${fmt(sd[sd.length - 1][1])} °C).`);
+  }
+  $("insights").innerHTML = items.map((t) => `<li>${t}</li>`).join("");
 }
 
 function drawTrend(rows) {
@@ -300,65 +442,49 @@ function drawTrend(rows) {
       return w.length === 30 ? mean(w) : null;
     });
     return { label: city, data: roll, borderColor: colorOf(city), backgroundColor: colorOf(city),
-             borderWidth: 2.5, pointRadius: 0, tension: 0.25 };
+             borderWidth: 2.4, pointRadius: 0, pointHoverRadius: 4, tension: 0.25 };
   });
   makeChart("cTrend", {
     type: "line",
     data: { labels: dates, datasets },
     options: {
-      responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
-      scales: {
-        x: { ticks: { maxTicksLimit: 8 } },
-        y: { title: { display: true, text: "Temperature (°C)" } },
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { labels: { boxWidth: 12, boxHeight: 12, borderRadius: 3 } },
+        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y)} °C` } },
       },
+      scales: { x: { ticks: { maxTicksLimit: 8, maxRotation: 0 }, grid: { display: false } }, y: { title: { display: true, text: "Temperature (°C)" } } },
     },
-  });
-}
-
-function monthlyMeans(rows, city) {
-  return MONTHS.map((_, m) => {
-    const v = rows.filter((r) => r.city === city && r.month === m + 1).map((r) => r.tmean);
-    return mean(v);
   });
 }
 
 function drawMonthly(rows) {
   makeChart("cMonthly", {
     type: "bar",
-    data: {
-      labels: MONTHS,
-      datasets: [...selected].map((city) => ({
-        label: city, data: monthlyMeans(rows, city),
-        backgroundColor: colorOf(city), borderRadius: 4,
-      })),
-    },
+    data: { labels: MONTHS, datasets: [...selected].map((city) => ({
+      label: city, borderRadius: 4, backgroundColor: colorOf(city),
+      data: MONTHS.map((_, m) => mean(rows.filter((r) => r.city === city && r.month === m + 1).map((r) => r.tmean))),
+    })) },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      scales: { y: { title: { display: true, text: "Temperature (°C)" } } },
+      plugins: { legend: { labels: { boxWidth: 12, boxHeight: 12, borderRadius: 3 } },
+                 tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y)} °C` } } },
+      scales: { x: { grid: { display: false }, ticks: { maxRotation: 0 } }, y: { title: { display: true, text: "Temperature (°C)" } } },
     },
   });
 }
 
-function heatColor(t, lo, hi) {
-  const x = hi === lo ? 0.5 : (t - lo) / (hi - lo);      // 0..1
-  // blue -> yellow -> red
+function heatColor(x) {
   const stops = [[59, 130, 246], [253, 224, 71], [239, 68, 68]];
   const p = x < 0.5 ? x * 2 : (x - 0.5) * 2;
-  const a = x < 0.5 ? stops[0] : stops[1];
-  const b = x < 0.5 ? stops[1] : stops[2];
-  const c = a.map((v, i) => Math.round(v + (b[i] - v) * p));
-  return `rgb(${c[0]},${c[1]},${c[2]})`;
+  const a = x < 0.5 ? stops[0] : stops[1], b = x < 0.5 ? stops[1] : stops[2];
+  return a.map((v, i) => Math.round(v + (b[i] - v) * p));
 }
-
 function drawHeatmap(rows) {
   const years = [...new Set(rows.map((r) => r.year))].sort();
-  const cell = {};
-  let all = [];
+  const cell = {}, all = [];
   years.forEach((y) => MONTHS.forEach((_, m) => {
-    const v = rows.filter((r) => r.year === y && r.month === m + 1).map((r) => r.tmean);
-    const mv = mean(v);
-    cell[y + "-" + m] = mv;
-    if (mv !== null) all.push(mv);
+    const mv = mean(rows.filter((r) => r.year === y && r.month === m + 1).map((r) => r.tmean));
+    cell[y + "-" + m] = mv; if (mv !== null) all.push(mv);
   }));
   const lo = Math.min(...all), hi = Math.max(...all);
   let html = "<tr><th></th>" + MONTHS.map((m) => `<th>${m}</th>`).join("") + "</tr>";
@@ -366,80 +492,72 @@ function drawHeatmap(rows) {
     html += `<tr><th>${y}</th>`;
     MONTHS.forEach((_, m) => {
       const v = cell[y + "-" + m];
-      html += v === null ? "<td></td>" : `<td style="background:${heatColor(v, lo, hi)}">${v.toFixed(0)}</td>`;
+      if (v === null) { html += "<td></td>"; return; }
+      const x = hi === lo ? 0.5 : (v - lo) / (hi - lo);
+      const [r, g, b] = heatColor(x);
+      const txt = x < 0.18 || x > 0.82 ? "#fff" : "#0b1220";
+      html += `<td style="background:rgb(${r},${g},${b});color:${txt}">${v.toFixed(0)}</td>`;
     });
     html += "</tr>";
   });
-  document.getElementById("heat").innerHTML = html;
+  $("heat").innerHTML = html;
+  $("lgLo").textContent = fmt(lo, 0) + " °C"; $("lgHi").textContent = fmt(hi, 0) + " °C";
 }
 
 function drawRain(rows) {
   const vals = MONTHS.map((_, m) => mean(rows.filter((r) => r.month === m + 1).map((r) => r.rain)));
   const max = Math.max(...vals);
+  const base = isDark() ? "56, 189, 248" : "14, 116, 144";
   makeChart("cRain", {
     type: "bar",
-    data: {
-      labels: MONTHS,
-      datasets: [{
-        label: "Rainfall (mm/day)", data: vals, borderRadius: 5,
-        backgroundColor: vals.map((v) => `rgba(37, 99, 235, ${0.35 + 0.65 * (v / max)})`),
-      }],
-    },
+    data: { labels: MONTHS, datasets: [{ label: "Rainfall (mm/day)", data: vals, borderRadius: 5,
+      backgroundColor: vals.map((v) => `rgba(${base}, ${0.3 + 0.7 * (v / max)})`) }] },
     options: {
-      responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-      scales: { y: { title: { display: true, text: "Rainfall (mm/day)" } } },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${fmt(c.parsed.y, 2)} mm per day` } } },
+      scales: { x: { grid: { display: false } }, y: { title: { display: true, text: "Rainfall (mm/day)" } } },
     },
   });
 }
 
 function drawTopRain(rows) {
   const top = [...rows].sort((a, b) => b.rain - a.rain).slice(0, 5);
-  document.getElementById("topRain").innerHTML =
-    "<tr><th>City</th><th>Date</th><th>Rainfall (mm)</th></tr>" +
+  $("topRain").innerHTML = "<tr><th>City</th><th>Date</th><th>Rainfall (mm)</th></tr>" +
     top.map((r) => `<tr><td>${r.city}</td><td>${r.date}</td><td>${fmt(r.rain)}</td></tr>`).join("");
 }
 
-function drawSummary(rows) {
-  let html = "<tr><th>City</th><th>Avg temp (°C)</th><th>Max temp (°C)</th><th>Min temp (°C)</th>" +
-             "<th>Avg rain (mm/day)</th><th>Rainy days (%)</th></tr>";
-  [...selected].forEach((city) => {
-    const r = rows.filter((x) => x.city === city);
-    if (!r.length) return;
-    html += `<tr><td><span class="dot" style="background:${colorOf(city)}"></span> ${city}</td>` +
-      `<td>${fmt(mean(r.map((x) => x.tmean)), 2)}</td>` +
-      `<td>${fmt(Math.max(...r.map((x) => x.tmax)), 2)}</td>` +
-      `<td>${fmt(Math.min(...r.map((x) => x.tmin)), 2)}</td>` +
-      `<td>${fmt(mean(r.map((x) => x.rain)), 2)}</td>` +
-      `<td>${fmt((r.filter((x) => x.rain >= 1).length / r.length) * 100, 2)}</td></tr>`;
-  });
-  document.getElementById("summary").innerHTML = html;
-}
-
-function drawCityChart(rows) {
+function drawCities(rows) {
   const cities = [...selected];
+  const stat = cities.map((c) => {
+    const r = rows.filter((x) => x.city === c);
+    return { c, avg: mean(r.map((x) => x.tmean)), max: Math.max(...r.map((x) => x.tmax)), min: Math.min(...r.map((x) => x.tmin)),
+             hi: mean(r.map((x) => x.tmax)), lo: mean(r.map((x) => x.tmin)),
+             rain: mean(r.map((x) => x.rain)), rainy: (r.filter((x) => x.rain >= 1).length / r.length) * 100 };
+  });
+  $("cityCards").innerHTML = stat.map((s) =>
+    `<article class="citycard" style="--c:${colorOf(s.c)}"><h3>${s.c}</h3><div class="big">${fmt(s.avg)} °C</div>
+     <dl><dt>Hottest day</dt><dd>${fmt(s.max)} °C</dd><dt>Coldest night</dt><dd>${fmt(s.min)} °C</dd>
+     <dt>Rain per day</dt><dd>${fmt(s.rain, 2)} mm</dd><dt>Rainy days</dt><dd>${fmt(s.rainy, 0)} %</dd></dl></article>`
+  ).join("");
   makeChart("cCity", {
     type: "bar",
-    data: {
-      labels: cities,
-      datasets: [{
-        label: "Average temperature (°C)",
-        data: cities.map((c) => mean(rows.filter((r) => r.city === c).map((r) => r.tmean))),
-        backgroundColor: cities.map(colorOf), borderRadius: 6,
-      }],
+    data: { labels: cities, datasets: [{ label: "Average low to average high", borderRadius: 6, borderSkipped: false,
+      data: stat.map((s) => [s.lo, s.hi]), backgroundColor: stat.map((s) => colorOf(s.c)) }] },
+    options: {
+      indexAxis: "y",
+      plugins: { legend: { display: false },
+        tooltip: { callbacks: { label: (c) => `${fmt(c.raw[0])} to ${fmt(c.raw[1])} °C` } } },
+      scales: { x: { title: { display: true, text: "Temperature (°C)" } }, y: { grid: { display: false } } },
     },
-    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
   });
 }
 
 function drawRows(rows) {
-  const sorted = [...rows].sort((a, b) => (a.date < b.date ? 1 : -1));
-  const shown = sorted.slice(0, 200);
-  document.getElementById("rows").innerHTML =
-    "<tr><th>City</th><th>Date</th><th>Temp mean</th><th>Temp max</th><th>Temp min</th><th>Rain (mm)</th><th>Wind max</th></tr>" +
-    shown.map((r) => `<tr><td>${r.city}</td><td>${r.date}</td><td>${fmt(r.tmean)}</td><td>${fmt(r.tmax)}</td>` +
-                     `<td>${fmt(r.tmin)}</td><td>${fmt(r.rain)}</td><td>${fmt(r.wind)}</td></tr>`).join("");
-  document.getElementById("rowsNote").textContent =
-    `Showing latest ${shown.length} of ${rows.length.toLocaleString()} rows. The CSV has all rows.`;
+  const sorted = [...rows].sort((a, b) => (a.date < b.date ? 1 : -1))
+    .filter((r) => !query || r.city.toLowerCase().includes(query) || r.date.includes(query));
+  const shown = sorted.slice(0, 100);
+  $("rows").innerHTML = "<tr><th>City</th><th>Date</th><th>Mean °C</th><th>Max °C</th><th>Min °C</th><th>Rain mm</th><th>Wind max km/h</th></tr>" +
+    shown.map((r) => `<tr><td>${r.city}</td><td>${r.date}</td><td>${fmt(r.tmean)}</td><td>${fmt(r.tmax)}</td><td>${fmt(r.tmin)}</td><td>${fmt(r.rain)}</td><td>${fmt(r.wind)}</td></tr>`).join("");
+  $("rowsNote").textContent = `Showing ${shown.length} of ${sorted.length.toLocaleString()} matching rows. The CSV contains all rows for the current filters.`;
 }
 
 function downloadCSV() {
