@@ -249,10 +249,55 @@
   #tour button.next { background: #fbbf24; color: #1f2937; border-color: #fbbf24; }
   .spot { outline: 3px solid #fbbf24; outline-offset: 6px; border-radius: 18px; transition: outline-color .3s; }
 
+
+  /* ---- weather effect layer ---- */
+  #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+  .fxsel { appearance: auto; padding: 7px 10px; max-width: 150px; }
+  .fxnote { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; font-size: .8rem; font-weight: 700; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.26); border-radius: 999px; padding: 5px 13px; }
+  .fxnote:empty { display: none; }
+  .fxnote::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 0 4px rgba(251,191,36,.25); }
+
+  /* ---- explore grid ---- */
+  .features { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .feat { text-align: left; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); transition: transform .25s, box-shadow .25s, border-color .25s; }
+  .feat:hover { transform: translateY(-4px); box-shadow: var(--shadow-up); border-color: var(--accent); }
+  .feat .ic { width: 42px; height: 42px; border-radius: 13px; display: grid; place-items: center; background: color-mix(in srgb, var(--k) 15%, transparent); color: var(--k); }
+  .feat .ic svg { width: 22px; height: 22px; }
+  .feat h3 { font-size: 1rem; margin-top: 12px; }
+  .feat p { color: var(--muted); font-size: .86rem; margin: 4px 0 0; }
+  .feat .new { display: inline-block; margin-left: 6px; font-family: var(--font-body); font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; background: #f59e0b; color: #1f2937; vertical-align: middle; }
+
+  /* ---- analysis tabs ---- */
+  .controls { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: flex-end; margin-bottom: 14px; }
+  .ctl label { display: block; font-size: .74rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .ctl select { border: 1px solid var(--line); background: var(--surface-2); border-radius: 10px; padding: 8px 12px; min-width: 110px; }
+  .ctl input[type="range"] { width: 200px; accent-color: var(--accent); vertical-align: middle; }
+  .ctl .val { font-family: var(--font-head); font-weight: 800; font-size: 1.1rem; margin-left: 8px; font-variant-numeric: tabular-nums; }
+  .vs { font-family: var(--font-head); font-weight: 800; color: var(--muted); padding-bottom: 8px; }
+  .mkpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 14px; }
+  .mk { position: relative; overflow: hidden; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px 12px 18px; }
+  .mk::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--k, var(--accent)); }
+  .mk .label { color: var(--muted); font-size: .72rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+  .mk .value { font-family: var(--font-head); font-size: 1.45rem; font-weight: 800; margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .mk .sub { color: var(--muted); font-size: .8rem; }
+  td.num, th.num { text-align: right; }
+  tr.grp td { background: var(--surface-2); font-weight: 800; }
+  .dotc { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; background: var(--c); }
+  .up { color: #dc2626; font-weight: 800; } .down { color: var(--accent); font-weight: 800; } .flat { color: var(--muted); font-weight: 800; }
+  :root[data-theme="dark"] .up { color: #f87171; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .up { color: #f87171; } }
+  .takeaway.warn { background: color-mix(in srgb, #d97706 14%, transparent); border-left-color: #d97706; }
+  .takeaway.warn b { color: #d97706; }
+  .how { color: var(--muted); font-size: .84rem; margin-top: 10px; }
+  .how code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .78rem; background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 5px; }
+  .empty { color: var(--muted); padding: 14px 4px; }
+  .tabs .tab.hot::after { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #f59e0b; margin-left: 7px; vertical-align: middle; }
+
   .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
   .reveal.in { opacity: 1; transform: none; }
 
   @media (max-width: 900px) {
+    .features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .hero-grid { grid-template-columns: 1fr; }
     .pipe { grid-template-columns: 1fr; }
     .step:not(:last-child)::after { right: auto; left: 28px; top: auto; bottom: -11px; transform: rotate(135deg); }
@@ -263,6 +308,10 @@
     .hero { padding: 22px 18px 20px; border-radius: 18px; }
     .chart-h { height: 285px; } .box { padding: 14px; }
     .brand small { display: none; }
+    .features { grid-template-columns: 1fr; }
+    .tools #tourBtn2 { display: none; }
+    .fxsel { max-width: 112px; }
+    .ctl input[type="range"] { width: 150px; }
     .iconbtn { padding: 6px 10px; font-size: .8rem; } .brand { font-size: 1.02rem; }
     .tabs { top: 62px; }
   }
@@ -270,27 +319,35 @@
 </style>
 </head>
 <body>
+<canvas id="fx" aria-hidden="true"></canvas>
 <div id="progress"></div>
 
 <header class="topbar">
   <div class="wrap">
-    <div class="brand">
+    <a class="brand" href="#top" style="text-decoration:none;color:inherit" aria-label="WeatherLens home">
       <svg viewBox="0 0 32 32" aria-hidden="true">
         <circle cx="12" cy="11" r="6" fill="#f5b942"/>
         <path d="M10 25a5 5 0 0 1 .8-9.9A7 7 0 0 1 24 17a4 4 0 0 1-.5 8H10z" fill="#38bdf8"/>
       </svg>
       WeatherLens <small>ETL + EDA</small>
-    </div>
+    </a>
     <div class="tools">
+      <select class="iconbtn fxsel" id="fxSel" aria-label="Weather effect">
+        <option value="auto">Weather: Auto</option>
+        <option value="rain">Weather: Rain</option>
+        <option value="storm">Weather: Storm</option>
+        <option value="sun">Weather: Sunny</option>
+        <option value="clouds">Weather: Clouds</option>
+        <option value="off">Weather: Off</option>
+      </select>
       <button class="iconbtn primary" id="tourBtn2" type="button">Guided tour</button>
       <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch light and dark mode">Dark mode</button>
     </div>
   </div>
 </header>
 
-<main class="wrap">
+<main class="wrap" id="top">
   <section class="hero" id="hero">
-    <div class="drops" id="drops" aria-hidden="true"></div>
     <div class="hero-grid">
       <div>
         <span class="eyebrow"><b></b> Open-Meteo data, 2020 to 2025</span>
@@ -308,6 +365,7 @@
           <button class="go" id="tourBtn" type="button">Start guided tour</button>
           <button class="ghost" id="seePipe" type="button">See how it works</button>
         </div>
+        <div class="fxnote" id="fxNote" aria-live="polite"></div>
       </div>
       <aside class="glass" aria-label="Average temperature through the year">
         <div class="lab">Average temperature, selected cities</div>
@@ -336,11 +394,27 @@
     <ul id="insights"></ul>
   </section>
 
+  <div class="section-title reveal" id="explore"><h2>Explore the analyses</h2><span>Click a card to open it</span></div>
+  <section class="features" id="features">
+      <button type="button" class="feat reveal" data-open="temp" style="--k:#f59e0b"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.8V5a2 2 0 0 0-4 0v9.8a4 4 0 1 0 4 0z"/></svg></div><h3>Temperature trends</h3><p>Moving averages, monthly pattern and a month by year heatmap.</p></button>
+      <button type="button" class="feat reveal" data-open="rain" style="--k:#0ea5e9"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg></div><h3>Monsoon rainfall</h3><p>Which months bring the rain and the five rainiest days.</p></button>
+      <button type="button" class="feat reveal" data-open="city" style="--k:#22c55e"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.6 10.5l6.8-3M8.6 13.5l6.8 3"/></svg></div><h3>City comparison</h3><p>Daily ranges and the yearly shape of each city.</p></button>
+      <button type="button" class="feat reveal" data-open="eda" style="--k:#8b5cf6"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Exploratory analysis</h3><p>Quality checks, histogram, correlation and statistics.</p></button>
+      <button type="button" class="feat reveal" data-open="p-compare" style="--k:#0e7490"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3M12 8v8M8 12h8"/></svg></div><h3>Compare periods <span class="new">New</span></h3><p>Set one year against another, month by month.</p></button>
+      <button type="button" class="feat reveal" data-open="p-heatwave" style="--k:#ef4444"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></div><h3>Heatwave detector <span class="new">New</span></h3><p>Runs of very hot days above a limit you choose.</p></button>
+      <button type="button" class="feat reveal" data-open="p-dry" style="--k:#d97706"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div><h3>Dry spell tracker <span class="new">New</span></h3><p>How long it went without a rainy day.</p></button>
+      <button type="button" class="feat reveal" data-open="p-trend" style="--k:#14b8a6"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-9"/><path d="M15 6h6v6"/></svg></div><h3>Yearly trend <span class="new">New</span></h3><p>Average temperature per year with a trend line.</p></button>
+  </section>
+
   <div class="tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" aria-selected="true" data-tab="temp">Temperature</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="rain">Rainfall</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="city">Cities</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="eda">EDA</button>
+    <button class="tab hot" role="tab" aria-selected="false" data-tab="p-compare">Compare</button>
+    <button class="tab hot" role="tab" aria-selected="false" data-tab="p-heatwave">Heatwaves</button>
+    <button class="tab hot" role="tab" aria-selected="false" data-tab="p-dry">Dry spells</button>
+    <button class="tab hot" role="tab" aria-selected="false" data-tab="p-trend">Trend</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="month">Month guide</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="day">Any date</button>
     <button class="tab" role="tab" aria-selected="false" data-tab="data">Data</button>
@@ -433,6 +507,70 @@
     </div>
   </div>
 
+  <div class="panel" id="p-compare">
+    <div class="box">
+      <h2>Compare two periods</h2>
+      <div class="hint">For example, June 2020 against June 2025. The change shows how the second period differs from the first.</div>
+      <div class="controls">
+        <div class="ctl"><label for="yA">Period A (year)</label><select id="yA"></select></div>
+        <div class="vs">vs</div>
+        <div class="ctl"><label for="yB">Period B (year)</label><select id="yB"></select></div>
+        <div class="ctl"><label for="mSel">Month</label><select id="mSel"></select></div>
+      </div>
+      <div class="mkpis" id="cmpKpis"></div>
+      <div class="grid2">
+        <div><div class="chart-h sm"><canvas id="cCmp"></canvas></div></div>
+        <div class="scroll"><table id="cmpTable"></table></div>
+      </div>
+      <div class="takeaway" id="cmpTake"></div>
+      <div class="how">Uses the cities selected at the top. The years here are your own choice and do not depend on the From and to boxes.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-heatwave">
+    <div class="box">
+      <h2>Heatwave detector</h2>
+      <div class="hint">A heatwave is a run of consecutive days when the daily maximum stays at or above your limit.</div>
+      <div class="controls">
+        <div class="ctl"><label for="thr">Temperature limit</label><input type="range" id="thr" min="34" max="48" step="1" value="40"><span class="val" id="thrVal">40 °C</span></div>
+        <div class="ctl"><label for="minLen">At least</label><select id="minLen"></select></div>
+      </div>
+      <div class="mkpis" id="heatKpis"></div>
+      <div class="grid2">
+        <div><h2 style="font-size:.98rem">Heatwave days per year</h2><div class="hint">Total days inside heatwaves.</div><div class="chart-h sm"><canvas id="cHeat"></canvas></div></div>
+        <div><h2 style="font-size:.98rem">Longest heatwaves</h2><div class="hint">Top events, longest first.</div><div class="scroll"><table id="heatTable"></table></div></div>
+      </div>
+      <div class="takeaway" id="heatTake"></div>
+      <div class="how">How it is computed: for each city we walk through the days in order and count how many days in a row have <code>tmax &gt;= limit</code>. Runs shorter than the minimum are ignored. Uses the From and to years at the top.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-dry">
+    <div class="box">
+      <h2>Dry spell tracker</h2>
+      <div class="hint">A dry spell is a run of consecutive days with less than 1 mm of rain, the same rule that defines a rainy day.</div>
+      <div class="mkpis" id="dryKpis"></div>
+      <div class="grid2">
+        <div><h2 style="font-size:.98rem">Longest dry spell each year</h2><div class="hint">Number of days in a row without a rainy day.</div><div class="chart-h sm"><canvas id="cDry"></canvas></div></div>
+        <div><h2 style="font-size:.98rem">Longest dry spells</h2><div class="hint">Top events, longest first.</div><div class="scroll"><table id="dryTable"></table></div></div>
+      </div>
+      <div class="takeaway warn" id="dryTake"></div>
+      <div class="how">How it is computed: the same walk through the days, counting days in a row with <code>rain &lt; 1 mm</code>. Uses the From and to years at the top.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-trend">
+    <div class="box">
+      <h2>Yearly temperature trend</h2>
+      <div class="hint">The average temperature of each year with a straight trend line fitted through it.</div>
+      <div class="mkpis" id="trendKpis"></div>
+      <div class="chart-h"><canvas id="cYear"></canvas></div>
+      <div class="takeaway" id="trendTake"></div>
+      <div class="takeaway warn" style="margin-top:10px"><b>Be careful:</b> a few years is a short record. The slope is a hint about direction, not proof of climate change. One unusually hot or cool year can move it a lot.</div>
+      <div class="how">How it is computed: the average of <code>tmean</code> for each year, then a least-squares line. The slope is the change in °C per year. Uses the From and to years at the top.</div>
+    </div>
+  </div>
+
   <div class="panel" id="month">
     <div class="box">
       <h2>Which city suits which month?</h2>
@@ -519,7 +657,7 @@ const COLORS = { Lahore: "#ef4444", Karachi: "#0ea5e9", Islamabad: "#22c55e" };
 const FALLBACK = ["#a855f7", "#f59e0b", "#14b8a6", "#ec4899"];
 const REJECTED = 0; // rows rejected by Pydantic in the real pipeline run (printed by pipeline.py)
 
-let ALL = [], CITIES = [], selected = new Set(), charts = {}, query = "", monthSel = new Date().getMonth() + 1, win = 30;
+let ALL = [], BY = {}, YEARS = [], CITIES = [], selected = new Set(), charts = {}, query = "", monthSel = new Date().getMonth() + 1, win = 30;
 
 const $ = (id) => document.getElementById(id);
 const sel = () => CITIES.filter((c) => selected.has(c));
@@ -565,17 +703,7 @@ $("themeBtn").addEventListener("click", () => {
 syncThemeUI();
 
 /* ---------- small effects ---------- */
-(function drops() {
-  const box = $("drops");
-  for (let i = 0; i < 26; i++) {
-    const d = document.createElement("i");
-    d.style.left = Math.random() * 100 + "%";
-    d.style.animationDuration = 1.6 + Math.random() * 2.4 + "s";
-    d.style.animationDelay = -Math.random() * 4 + "s";
-    d.style.opacity = 0.3 + Math.random() * 0.7;
-    box.appendChild(d);
-  }
-})();
+
 window.addEventListener("scroll", () => {
   const h = document.documentElement;
   $("progress").style.width = (h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)) * 100 + "%";
@@ -615,13 +743,17 @@ function init(data) {
   CITIES = Object.keys(data.cities);
   for (const city of CITIES) {
     const c = data.cities[city];
+    BY[city] = [];
     for (let i = 0; i < c.date.length; i++) {
-      ALL.push({ city, date: c.date[i], year: +c.date[i].slice(0, 4), month: +c.date[i].slice(5, 7),
-                 tmean: c.tmean[i], tmax: c.tmax[i], tmin: c.tmin[i], rain: c.rain[i], wind: c.wind[i] });
+      const row = { city, date: c.date[i], day: dayNo(c.date[i]), year: +c.date[i].slice(0, 4), month: +c.date[i].slice(5, 7),
+                    tmean: c.tmean[i], tmax: c.tmax[i], tmin: c.tmin[i], rain: c.rain[i], wind: c.wind[i] };
+      ALL.push(row); BY[city].push(row);
     }
+    BY[city].sort((a, b) => a.day - b.day);
   }
   selected = new Set(CITIES);
   const years = [...new Set(ALL.map((r) => r.year))].sort();
+  YEARS = years;
 
   $("heroPills").innerHTML = [
     [CITIES.length, "cities"], [years.length, "years"], [ALL.length.toLocaleString(), "daily rows"], [REJECTED, "rows rejected"],
@@ -652,6 +784,21 @@ function init(data) {
   $("yearFrom").value = years[0]; $("yearTo").value = years[years.length - 1];
   $("yearFrom").addEventListener("change", render);
   $("yearTo").addEventListener("change", render);
+
+  /* analysis tabs: controls */
+  $("yA").innerHTML = opts; $("yB").innerHTML = opts;
+  $("yA").value = years[0]; $("yB").value = years[years.length - 1];
+  $("mSel").innerHTML = '<option value="0">Whole year</option>' + MONTH_FULL.map((m, i) => `<option value="${i + 1}">${m}</option>`).join("");
+  $("mSel").value = "6";
+  $("minLen").innerHTML = [2, 3, 4, 5, 7].map((n) => `<option value="${n}">${n} days in a row</option>`).join("");
+  $("minLen").value = "3";
+  ["yA", "yB", "mSel"].forEach((id) => $(id).addEventListener("change", drawCompare));
+  $("thr").addEventListener("input", () => { $("thrVal").textContent = $("thr").value + " °C"; drawHeat(); });
+  $("minLen").addEventListener("change", drawHeat);
+  document.querySelectorAll(".feat").forEach((b) => b.addEventListener("click", () => {
+    setTab(b.dataset.open);
+    $("tabs").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  }));
 
   $("winSeg").querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
     win = +b.dataset.w;
@@ -684,6 +831,8 @@ function init(data) {
   $("tourBtn2").addEventListener("click", startTour);
   setupReveal();
   render();
+  fxAuto();
+  if (location.hash === "#tour") setTimeout(startTour, 600);
 }
 
 function setTab(name) {
@@ -742,6 +891,7 @@ function render() {
   drawRain(rows); drawTopRain(rows);
   drawCities(rows);
   drawEDA(rows);
+  drawCompare(); drawHeat(); drawDry(); drawYearTrend();
   drawMonth(rows);
   drawRows(rows);
 }
@@ -1044,9 +1194,288 @@ function downloadCSV() {
   URL.revokeObjectURL(url);
 }
 
+
+/* ---------- advanced analyses ---------- */
+function dayNo(s) { return Math.round(Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 86400000); }
+const mk = (label, value, sub, color) => `<div class="mk" style="--k:${color || "var(--accent)"}"><div class="label">${label}</div><div class="value">${value}</div><div class="sub">${sub || "&nbsp;"}</div></div>`;
+function yearRange() {
+  const a = +$("yearFrom").value, b = +$("yearTo").value;
+  return [Math.min(a, b), Math.max(a, b)];
+}
+const rowsFor = (c) => { const [y1, y2] = yearRange(); return BY[c].filter((r) => r.year >= y1 && r.year <= y2); };
+const yearsIn = () => { const [y1, y2] = yearRange(); return YEARS.filter((y) => y >= y1 && y <= y2); };
+
+/* compare two periods */
+function periodStats(city, year, month) {
+  const r = BY[city].filter((x) => x.year === year && (month === 0 || x.month === month));
+  if (!r.length) return null;
+  return { avg: mean(r.map((x) => x.tmean)), hi: mean(r.map((x) => x.tmax)), lo: mean(r.map((x) => x.tmin)),
+           rain: mean(r.map((x) => x.rain)), rainy: (r.filter((x) => x.rain >= 1).length / r.length) * 100 };
+}
+function drawCompare() {
+  const a = +$("yA").value, b = +$("yB").value, m = +$("mSel").value, cities = sel();
+  const label = (y) => (m ? MONTH_FULL[m - 1] + " " + y : String(y));
+  if (!cities.length) { $("cmpTable").innerHTML = ""; $("cmpKpis").innerHTML = ""; $("cmpTake").textContent = "Select at least one city above."; if (charts.cCmp) charts.cCmp.destroy(); return; }
+  const rows = cities.map((c) => ({ c, A: periodStats(c, a, m), B: periodStats(c, b, m) }));
+  const metrics = [["Average temperature", "avg", "°C", 1], ["Average high", "hi", "°C", 1], ["Average low", "lo", "°C", 1], ["Rain per day", "rain", "mm", 2], ["Rainy days", "rainy", "%", 0]];
+  const delta = (x, y, d, unit) => {
+    if (x === null || y === null) return '<span class="flat">-</span>';
+    const v = y - x, cls = Math.abs(v) < Math.pow(10, -d) / 2 ? "flat" : v > 0 ? "up" : "down";
+    return `<span class="${cls}">${v > 0 ? "+" : ""}${v.toFixed(d)} ${unit}</span>`;
+  };
+  let t = `<tr><th>Metric</th><th class="num">${label(a)}</th><th class="num">${label(b)}</th><th class="num">Change</th></tr>`;
+  rows.forEach((r) => {
+    t += `<tr class="grp"><td colspan="4"><span class="dotc" style="--c:${colorOf(r.c)}"></span>${r.c}</td></tr>`;
+    metrics.forEach(([name, k, unit, d]) => {
+      const x = r.A ? r.A[k] : null, y = r.B ? r.B[k] : null;
+      t += `<tr><td>${name}</td><td class="num">${fmt(x, d)} ${unit}</td><td class="num">${fmt(y, d)} ${unit}</td><td class="num">${delta(x, y, d, unit)}</td></tr>`;
+    });
+  });
+  $("cmpTable").innerHTML = t;
+  const ok = rows.filter((r) => r.A && r.B);
+  if (!ok.length) { $("cmpKpis").innerHTML = ""; $("cmpTake").textContent = "No data for one of the chosen periods."; }
+  else {
+    const oa = mean(ok.map((r) => r.A.avg)), ob = mean(ok.map((r) => r.B.avg)), ra = mean(ok.map((r) => r.A.rain)), rb = mean(ok.map((r) => r.B.rain)), diff = ob - oa;
+    $("cmpKpis").innerHTML = mk("Avg temp " + label(a), fmt(oa) + " °C", "selected cities") + mk("Avg temp " + label(b), fmt(ob) + " °C", "selected cities") +
+      mk("Temperature change", (diff > 0 ? "+" : "") + fmt(diff) + " °C", diff > 0.05 ? "B is warmer" : diff < -0.05 ? "B is cooler" : "about the same", diff > 0.05 ? "#dc2626" : "var(--accent)") +
+      mk("Rain change", (rb - ra > 0 ? "+" : "") + fmt(rb - ra, 2) + " mm/day", rb > ra ? "B is wetter" : "B is drier", "#0ea5e9");
+    $("cmpTake").innerHTML = `<b>Reading it:</b> in ${label(b)} the average temperature was ${fmt(Math.abs(diff))} °C ${diff >= 0 ? "higher" : "lower"} than in ${label(a)}, and the rain was ${rb >= ra ? "heavier" : "lighter"} (${fmt(rb, 2)} against ${fmt(ra, 2)} mm per day). Comparing the same month in two years is fairer than comparing different seasons.`;
+  }
+  makeChart("cCmp", { type: "bar",
+    data: { labels: cities, datasets: [
+      { label: label(a), data: rows.map((r) => (r.A ? r.A.avg : null)), backgroundColor: "#94a3b8", borderRadius: 6 },
+      { label: label(b), data: rows.map((r) => (r.B ? r.B.avg : null)), backgroundColor: cssv("--accent"), borderRadius: 6 } ] },
+    options: { plugins: { legend: legendOpts, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y)} °C` } } },
+      scales: { x: { grid: { display: false } }, y: { title: { display: true, text: "Average temperature (°C)" } } } } });
+}
+
+/* runs of consecutive days (heatwaves, dry spells) */
+function findRuns(rows, test, minLen) {
+  const out = []; let cur = null;
+  const open = (r) => ({ city: r.city, start: r.date, end: r.date, last: r.day, len: 1, peak: r.tmax });
+  for (const r of rows) {
+    const ok = test(r);
+    if (ok && cur && r.day === cur.last + 1) { cur.len++; cur.last = r.day; cur.end = r.date; if (r.tmax > cur.peak) cur.peak = r.tmax; }
+    else { if (cur && cur.len >= minLen) out.push(cur); cur = ok ? open(r) : null; }
+  }
+  if (cur && cur.len >= minLen) out.push(cur);
+  return out;
+}
+const span = (e) => (e.start === e.end ? e.start : `${e.start} to ${e.end}`);
+const yearOf = (e) => +e.start.slice(0, 4);
+
+function drawHeat() {
+  const thr = +$("thr").value, minLen = +$("minLen").value, cities = sel(), yrs = yearsIn();
+  let ev = []; cities.forEach((c) => (ev = ev.concat(findRuns(rowsFor(c), (r) => r.tmax !== null && r.tmax >= thr, minLen))));
+  ev.sort((x, y) => y.len - x.len || y.peak - x.peak);
+  const days = ev.reduce((s, e) => s + e.len, 0), longest = ev[0], hottest = ev.length ? ev.reduce((a, b) => (b.peak > a.peak ? b : a)) : null;
+  const perCity = cities.map((c) => [c, ev.filter((e) => e.city === c).reduce((s, e) => s + e.len, 0)]).sort((a, b) => b[1] - a[1]);
+  $("heatKpis").innerHTML = cities.length ? [
+    mk("Heatwaves found", ev.length, `${minLen}+ days at ${thr} °C or more`, "#dc2626"),
+    mk("Days in heatwaves", days, cities.length + (cities.length === 1 ? " city" : " cities"), "#dc2626"),
+    mk("Longest heatwave", longest ? longest.len + " days" : "-", longest ? longest.city + ", " + longest.start : "none at this limit", "#dc2626"),
+    mk("Hottest peak", hottest ? fmt(hottest.peak) + " °C" : "-", hottest ? hottest.city + ", " + span(hottest) : "", "#dc2626"),
+  ].join("") : "";
+  $("heatTable").innerHTML = ev.length
+    ? '<tr><th>City</th><th>Dates</th><th class="num">Days</th><th class="num">Peak °C</th></tr>' +
+      ev.slice(0, 8).map((e) => `<tr><td><span class="dotc" style="--c:${colorOf(e.city)}"></span>${e.city}</td><td>${span(e)}</td><td class="num">${e.len}</td><td class="num">${fmt(e.peak)}</td></tr>`).join("")
+    : '<tr><td class="empty">No heatwaves at this limit. Lower the temperature limit to see events.</td></tr>';
+  $("heatTake").innerHTML = !cities.length ? "Select at least one city above."
+    : ev.length ? `<b>Reading it:</b> at ${thr} °C there ${ev.length === 1 ? "was 1 heatwave" : "were " + ev.length + " heatwaves"}. ${perCity[0][0]} had the most heatwave days (${perCity[0][1]}). The longest lasted ${longest.len} days in ${longest.city} (${span(longest)}).`
+    : `<b>Reading it:</b> no selected city stayed at ${thr} °C or more for ${minLen} days in a row. Try a lower limit, such as ${thr - 3} °C.`;
+  makeChart("cHeat", { type: "bar",
+    data: { labels: yrs, datasets: cities.map((c) => ({ label: c, backgroundColor: colorOf(c), borderRadius: 4,
+      data: yrs.map((y) => ev.filter((e) => e.city === c && yearOf(e) === y).reduce((s, e) => s + e.len, 0)) })) },
+    options: { plugins: { legend: legendOpts, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y} days` } } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: "Heatwave days" } } } } });
+}
+
+function drawDry() {
+  const cities = sel(), yrs = yearsIn(); let ev = [];
+  cities.forEach((c) => (ev = ev.concat(findRuns(rowsFor(c), (r) => r.rain < 1, 1))));
+  ev.sort((x, y) => y.len - x.len);
+  if (!ev.length) { $("dryKpis").innerHTML = ""; $("dryTable").innerHTML = '<tr><td class="empty">Select a city to see dry spells.</td></tr>'; $("dryTake").textContent = "Select at least one city above."; if (charts.cDry) charts.cDry.destroy(); return; }
+  const longest = ev[0], long7 = ev.filter((e) => e.len >= 7).length, avgLen = mean(ev.map((e) => e.len));
+  const perCity = cities.map((c) => { const m = ev.filter((e) => e.city === c)[0]; return [c, m ? m.len : 0]; }).sort((a, b) => b[1] - a[1]);
+  $("dryKpis").innerHTML = [
+    mk("Longest dry spell", longest.len + " days", longest.city + ", " + span(longest), "#d97706"),
+    mk("Spells of 7+ days", long7, "a week or more without rain", "#d97706"),
+    mk("Average spell", fmt(avgLen) + " days", "between rainy days", "#d97706"),
+    mk("Driest city", perCity[0][0], "longest spell " + perCity[0][1] + " days", "#d97706"),
+  ].join("");
+  $("dryTable").innerHTML = '<tr><th>City</th><th>Dates</th><th class="num">Days</th></tr>' +
+    ev.slice(0, 8).map((e) => `<tr><td><span class="dotc" style="--c:${colorOf(e.city)}"></span>${e.city}</td><td>${span(e)}</td><td class="num">${e.len}</td></tr>`).join("");
+  $("dryTake").innerHTML = `<b>Reading it:</b> the longest stretch without a rainy day was ${longest.len} days in ${longest.city} (${span(longest)}). Of the selected cities, ${perCity[0][0]} has the longest dry spell.`;
+  makeChart("cDry", { type: "bar",
+    data: { labels: yrs, datasets: cities.map((c) => ({ label: c, backgroundColor: colorOf(c), borderRadius: 4,
+      data: yrs.map((y) => { const m = ev.filter((e) => e.city === c && yearOf(e) === y).map((e) => e.len); return m.length ? Math.max(...m) : 0; }) })) },
+    options: { plugins: { legend: legendOpts, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${c.parsed.y} days` } } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, title: { display: true, text: "Days in a row" } } } } });
+}
+
+function linreg(xs, ys) {
+  const n = xs.length, mx = mean(xs), my = mean(ys);
+  let num = 0, den = 0, sst = 0;
+  for (let i = 0; i < n; i++) { num += (xs[i] - mx) * (ys[i] - my); den += (xs[i] - mx) ** 2; sst += (ys[i] - my) ** 2; }
+  const slope = den ? num / den : 0, b = my - slope * mx;
+  let sse = 0; for (let i = 0; i < n; i++) sse += (ys[i] - (b + slope * xs[i])) ** 2;
+  return { slope, b, r2: sst ? 1 - sse / sst : 0 };
+}
+function drawYearTrend() {
+  const cities = sel(), yrs = yearsIn();
+  if (!cities.length || yrs.length < 3) {
+    $("trendKpis").innerHTML = "";
+    $("trendTake").textContent = !cities.length ? "Select at least one city above." : "Choose at least three years in the From and to boxes to draw a trend.";
+    if (charts.cYear) charts.cYear.destroy();
+    return;
+  }
+  const fits = cities.map((c) => {
+    const ys = yrs.map((y) => mean(BY[c].filter((r) => r.year === y).map((r) => r.tmean)));
+    return { c, ys, ...linreg(yrs, ys) };
+  });
+  $("trendKpis").innerHTML = fits.map((f) => mk(f.c, (f.slope >= 0 ? "+" : "") + fmt(f.slope, 2) + " °C/yr", "fit quality R² = " + fmt(f.r2, 2), colorOf(f.c))).join("");
+  const top = fits.slice().sort((a, b) => b.slope - a.slope)[0];
+  $("trendTake").innerHTML = `<b>Reading it:</b> between ${yrs[0]} and ${yrs[yrs.length - 1]}, ${top.c} ${top.slope >= 0 ? "warmed the most" : "cooled the least"}, about ${fmt(top.slope, 2)} °C per year. A small R² means the yearly points are scattered, so the line describes them weakly.`;
+  const datasets = [];
+  fits.forEach((f) => {
+    datasets.push({ label: f.c, data: f.ys, borderColor: colorOf(f.c), backgroundColor: colorOf(f.c), borderWidth: 2.6, pointRadius: 5, pointHoverRadius: 7, tension: 0.2 });
+    datasets.push({ label: f.c + " trend", data: yrs.map((y) => f.b + f.slope * y), borderColor: colorOf(f.c), borderDash: [7, 6], borderWidth: 2, pointRadius: 0, pointHoverRadius: 0 });
+  });
+  makeChart("cYear", { type: "line", data: { labels: yrs, datasets },
+    options: { interaction: { mode: "index", intersect: false },
+      plugins: { legend: legendOpts, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y, 2)} °C` } } },
+      scales: { x: { grid: { display: false } }, y: { title: { display: true, text: "Average temperature (°C)" } } } } });
+}
+
+/* ---------- weather effects (canvas) ---------- */
+const FX_LABEL = { rain: "Rain", storm: "Storm", sun: "Sunny", clouds: "Cloudy", off: "Off" };
+const fx = { cv: $("fx"), ctx: null, mode: "off", pick: "auto", why: "", w: 0, h: 0, drops: [], clouds: [], raf: 0, last: 0, flash: 0, bolt: null, nextBolt: 0 };
+fx.ctx = fx.cv.getContext("2d");
+const rnd = (a, b) => a + Math.random() * (b - a);
+
+function fxResize() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  fx.w = window.innerWidth; fx.h = window.innerHeight;
+  fx.cv.width = Math.round(fx.w * dpr); fx.cv.height = Math.round(fx.h * dpr);
+  fx.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  fxBuild();
+}
+function newDrop(initial) {
+  return { x: rnd(-60, fx.w + 60), y: initial ? rnd(-fx.h, fx.h) : rnd(-120, -10), l: rnd(12, 30), v: rnd(650, 1150), a: rnd(0.14, 0.42), wd: rnd(1, 1.9) };
+}
+function fxBuild() {
+  const heavy = fx.mode === "storm";
+  const n = Math.min(heavy ? 280 : 180, Math.round((fx.w * fx.h) / (heavy ? 5200 : 8200)));
+  fx.drops = (fx.mode === "rain" || heavy) ? Array.from({ length: n }, () => newDrop(true)) : [];
+  fx.clouds = Array.from({ length: fx.mode === "clouds" ? 7 : heavy ? 5 : 0 }, () => ({ x: rnd(-200, fx.w), y: rnd(10, fx.h * 0.55), r: rnd(40, 90), v: rnd(8, 22), a: rnd(0.07, 0.16) }));
+}
+function cloudPath(c) {
+  const x = c.x, y = c.y, r = c.r, p = fx.ctx;
+  p.beginPath();
+  p.arc(x, y, r, 0, 7); p.moveTo(x + r * 1.5, y + r * 0.2); p.arc(x + r * 1.0, y + r * 0.2, r * 0.8, 0, 7);
+  p.moveTo(x - r * 0.4, y + r * 0.3); p.arc(x - r * 1.0, y + r * 0.3, r * 0.75, 0, 7);
+  p.moveTo(x + r * 2.2, y + r * 0.45); p.arc(x + r * 1.8, y + r * 0.45, r * 0.55, 0, 7);
+  p.moveTo(x + r * 0.7, y + r * 0.7); p.arc(x + r * 0.2, y + r * 0.6, r * 0.9, 0, 7);
+}
+function makeBolt() {
+  const pts = []; let x = rnd(fx.w * 0.15, fx.w * 0.85), y = 0;
+  while (y < fx.h * rnd(0.45, 0.7)) { pts.push([x, y]); x += rnd(-40, 40); y += rnd(22, 48); }
+  return pts;
+}
+function fxFrame(t) {
+  fx.raf = requestAnimationFrame(fxFrame);
+  const dt = Math.min(0.05, (t - (fx.last || t)) / 1000); fx.last = t;
+  const c = fx.ctx, W = fx.w, H = fx.h, dark = isDark();
+  c.clearRect(0, 0, W, H);
+
+  if (fx.mode === "clouds" || fx.mode === "storm") {
+    c.fillStyle = fx.mode === "storm" ? (dark ? "rgba(120,140,170,1)" : "rgba(70,90,120,1)") : (dark ? "rgba(200,220,255,1)" : "rgba(90,120,160,1)");
+    fx.clouds.forEach((k) => {
+      k.x += k.v * dt; if (k.x - k.r * 2 > W) k.x = -k.r * 3;
+      c.globalAlpha = fx.mode === "storm" ? k.a * 1.2 : k.a; cloudPath(k); c.fill();
+    });
+    c.globalAlpha = 1;
+  }
+  if (fx.mode === "sun") {
+    const cx = W * 0.9, cy = H * 0.1, pulse = 0.85 + 0.15 * Math.sin(t / 900);
+    const g = c.createRadialGradient(cx, cy, 0, cx, cy, 360 * pulse);
+    g.addColorStop(0, "rgba(255,214,90,.55)"); g.addColorStop(0.35, "rgba(255,190,60,.22)"); g.addColorStop(1, "rgba(255,190,60,0)");
+    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.save(); c.translate(cx, cy); c.rotate(t / 9000);
+    c.fillStyle = "rgba(255,205,80,.10)";
+    for (let i = 0; i < 14; i++) { c.rotate((Math.PI * 2) / 14); c.beginPath(); c.moveTo(0, -30); c.lineTo(-14, -520); c.lineTo(14, -520); c.closePath(); c.fill(); }
+    c.restore();
+    c.beginPath(); c.arc(cx, cy, 34, 0, 7); c.fillStyle = "rgba(255,225,120,.9)"; c.fill();
+  }
+  if (fx.mode === "rain" || fx.mode === "storm") {
+    c.lineCap = "round";
+    const col = dark ? "190,225,255" : "30,100,165";
+    fx.drops.forEach((d, i) => {
+      d.y += d.v * dt; d.x -= d.v * dt * 0.2;
+      if (d.y - d.l > H) fx.drops[i] = newDrop(false);
+      c.strokeStyle = `rgba(${col},${d.a})`; c.lineWidth = d.wd;
+      c.beginPath(); c.moveTo(d.x, d.y); c.lineTo(d.x + d.l * 0.2, d.y - d.l); c.stroke();
+    });
+    const mist = c.createLinearGradient(0, H - 140, 0, H);
+    mist.addColorStop(0, `rgba(${col},0)`); mist.addColorStop(1, `rgba(${col},.10)`);
+    c.fillStyle = mist; c.fillRect(0, H - 140, W, 140);
+  }
+  if (fx.mode === "storm") {
+    if (t > fx.nextBolt) { fx.bolt = makeBolt(); fx.flash = 1; fx.nextBolt = t + rnd(7000, 13000); }
+    if (fx.flash > 0) {
+      fx.flash = Math.max(0, fx.flash - dt * 2.2);
+      c.fillStyle = `rgba(255,255,235,${fx.flash * (dark ? 0.16 : 0.22)})`; c.fillRect(0, 0, W, H);
+      if (fx.bolt) {
+        c.save(); c.strokeStyle = `rgba(255,236,150,${fx.flash})`; c.lineWidth = 2.6; c.shadowColor = "rgba(255,230,120,.9)"; c.shadowBlur = 18; c.lineJoin = "round";
+        c.beginPath(); fx.bolt.forEach((p, i) => (i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]))); c.stroke(); c.restore();
+      }
+    }
+  }
+}
+function fxStop() { if (fx.raf) cancelAnimationFrame(fx.raf); fx.raf = 0; fx.last = 0; fx.ctx.clearRect(0, 0, fx.w, fx.h); }
+function fxApply(mode) {
+  fx.mode = mode; fxStop();
+  if (mode === "off" || reduceMotion) return;
+  fx.nextBolt = performance.now() + 2500;
+  fxBuild();
+  fx.raf = requestAnimationFrame(fxFrame);
+}
+function fxNote() {
+  if (reduceMotion) { $("fxNote").textContent = "Animations are off because your device asks for reduced motion"; return; }
+  if (fx.pick === "auto") $("fxNote").textContent = `Live weather: ${FX_LABEL[fx.mode]}. ${fx.why}`;
+  else if (fx.pick === "off") $("fxNote").textContent = "";
+  else $("fxNote").textContent = `Live weather: ${FX_LABEL[fx.mode]} (your choice)`;
+}
+function fxAuto() {
+  if (fx.pick !== "auto") return;
+  const m = new Date().getMonth() + 1, r = ALL.filter((x) => x.month === m);
+  let mode = "clouds", why = `${MONTH_FULL[m - 1]} usually looks like this in our data.`;
+  if (r.length) {
+    const rainy = (r.filter((x) => x.rain >= 1).length / r.length) * 100, hi = mean(r.map((x) => x.tmax));
+    if (rainy >= 25) { mode = rainy >= 35 ? "storm" : "rain"; why = `${MONTH_FULL[m - 1]} is rainy: ${fmt(rainy, 0)}% of days get 1 mm or more.`; }
+    else if (hi >= 35) { mode = "sun"; why = `${MONTH_FULL[m - 1]} is hot: the average high is ${fmt(hi)} °C.`; }
+    else { mode = "clouds"; why = `${MONTH_FULL[m - 1]} is mild and mostly dry (${fmt(rainy, 0)}% rainy days, average high ${fmt(hi)} °C).`; }
+  }
+  fx.why = why; fxApply(mode); fxNote();
+}
+(function fxInit() {
+  try { const s = localStorage.getItem("wl-fx"); if (s && [...$("fxSel").options].some((o) => o.value === s)) fx.pick = s; } catch (e) {}
+  $("fxSel").value = fx.pick;
+  $("fxSel").addEventListener("change", () => {
+    fx.pick = $("fxSel").value;
+    try { localStorage.setItem("wl-fx", fx.pick); } catch (e) {}
+    if (fx.pick === "auto") fxAuto(); else { fxApply(fx.pick); fxNote(); }
+  });
+  window.addEventListener("resize", fxResize);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) fxStop(); else if (fx.mode !== "off") fxApply(fx.mode); });
+  fxResize();
+  if (fx.pick !== "auto") { fxApply(fx.pick); fxNote(); }
+  else if (!reduceMotion) { fxApply("clouds"); }
+})();
+
 /* ---------- guided tour ---------- */
 const TOUR = [
-  { target: "hero", tab: null, t: "Welcome to WeatherLens", x: "A dashboard built on top of an ETL and EDA pipeline. Daily weather of Lahore, Karachi and Islamabad from 2020 to 2025. Use the city buttons and year boxes here to filter everything below." },
+  { target: "hero", tab: null, t: "Welcome to WeatherLens", x: "A dashboard built on top of an ETL and EDA pipeline. Daily weather of Lahore, Karachi and Islamabad from 2020 to 2025. Use the city buttons and year boxes here to filter everything below. The weather effect in the top bar follows the season." },
   { target: "pipeline", tab: null, t: "1. How the data was built", x: "Extract the data from the Open-Meteo API, transform and validate it with pandas and Pydantic, load it into a SQLite database, analyse it with EDA, then publish it to this page." },
   { target: "kpis", tab: null, t: "2. Key numbers", x: "These cards react to the filters: days of data, average temperature, the hottest day and the share of rainy days (1 mm or more)." },
   { target: "insightsBox", tab: null, t: "3. What the data says", x: "Plain sentences generated from the data: hottest and coldest month, wettest month, and which city is steadiest." },
@@ -1054,9 +1483,13 @@ const TOUR = [
   { target: "rain", tab: "rain", t: "5. Rainfall", x: "Most rain falls in July and August, the monsoon. The table lists the five rainiest days in the selected period." },
   { target: "city", tab: "city", t: "6. Comparing cities", x: "Each card summarises one city. The radar shows each city's yearly temperature shape, so you can see which one is steady and which swings more." },
   { target: "eda", tab: "eda", t: "7. EDA", x: "Data quality checks, the temperature histogram, the correlation table and summary statistics. These are the same ideas as the eda.py script." },
-  { target: "month", tab: "month", t: "8. Month guide", x: "Pick a month to see which city is warmest, coolest, driest or wettest, and which one is the comfort pick closest to 24 °C." },
-  { target: "day", tab: "day", t: "9. Any date", x: "Choose any day from 2020 to 2025 and see the weather in all three cities on that day." },
-  { target: "about", tab: "about", t: "10. About the project", x: "Every Python file explained in order, the Pydantic validation rules and the tech stack. That is the full story from API to dashboard." },
+  { target: "p-compare", tab: "p-compare", t: "8. Compare periods", x: "Pick two years (and a month) and see how temperature and rain changed from one to the other, city by city." },
+  { target: "p-heatwave", tab: "p-heatwave", t: "9. Heatwave detector", x: "Move the slider to set a temperature limit. The page finds runs of consecutive days at or above it and lists the longest ones." },
+  { target: "p-dry", tab: "p-dry", t: "10. Dry spells", x: "The longest stretches of days in a row with less than 1 mm of rain, and which city had the longest one each year." },
+  { target: "p-trend", tab: "p-trend", t: "11. Yearly trend", x: "The average temperature of each year with a fitted trend line. The slope shows the direction, but a short record is only a hint." },
+  { target: "month", tab: "month", t: "12. Month guide", x: "Pick a month to see which city is warmest, coolest, driest or wettest, and which one is the comfort pick closest to 24 °C." },
+  { target: "day", tab: "day", t: "13. Any date", x: "Choose any day from 2020 to 2025 and see the weather in all three cities on that day." },
+  { target: "about", tab: "about", t: "14. About the project", x: "Every Python file explained in order, the Pydantic validation rules and the tech stack. That is the full story from API to dashboard." },
 ];
 let tourI = -1, spotEl = null;
 function startTour() { tourI = 0; $("tour").classList.add("on"); showTour(); }
