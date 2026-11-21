@@ -7,7 +7,7 @@
 <meta name="description" content="Interactive ETL and EDA dashboard of daily weather in Lahore, Karachi and Islamabad (2020 to 2025).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&display=swap" rel="stylesheet">
 <script src="chart.umd.js"></script>
 <style>
   /* Layout: progress bar, top bar, animated hero, pipeline strip, KPIs, insights, tabs, guided tour. */
@@ -250,6 +250,64 @@
   .spot { outline: 3px solid #fbbf24; outline-offset: 6px; border-radius: 18px; transition: outline-color .3s; }
 
 
+
+  /* ---- landing section ---- */
+  .landing { position: relative; overflow: hidden; color: #fff; isolation: isolate; padding: 92px 0 96px; background: linear-gradient(140deg, #06182e 0%, #0a3558 45%, #0e7490 100%); }
+  .landing::before, .landing::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; filter: blur(60px); opacity: .55; }
+  .landing::before { width: 440px; height: 440px; right: -100px; top: -140px; background: #f59e0b; animation: drift 14s ease-in-out infinite alternate; }
+  .landing::after { width: 380px; height: 380px; left: 25%; bottom: -220px; background: #38bdf8; animation: drift 18s ease-in-out infinite alternate-reverse; }
+  .l-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 44px; align-items: center; }
+  .l-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); padding: 6px 14px; border-radius: 999px; }
+  .l-eyebrow b { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 4px rgba(74,222,128,.25); }
+  .landing h1 { font-size: clamp(2.2rem, 5.6vw, 3.9rem); line-height: 1.07; margin-top: 18px; font-weight: 800; }
+  .landing h1 span { background: linear-gradient(90deg, #fde68a, #fb923c); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .landing .lead { font-size: 1.1rem; opacity: .92; max-width: 54ch; margin: 18px 0 0; }
+  .l-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .lbtn { display: inline-flex; align-items: center; gap: 8px; border: 0; border-radius: 13px; padding: 12px 22px; font-weight: 800; font-size: .95rem; cursor: pointer; text-decoration: none; transition: transform .2s; }
+  .lbtn:hover { transform: translateY(-2px); }
+  .lbtn.light { background: #fff; color: #0b2a4a; box-shadow: 0 10px 26px rgba(0,0,0,.28); }
+  .lbtn.ghost { background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.38); }
+  .l-trust { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 26px; font-size: .86rem; opacity: .85; font-weight: 600; }
+  .l-trust span::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 2px; background: #fbbf24; margin-right: 8px; }
+  .lglass { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); border-radius: 24px; padding: 22px 24px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 24px 60px rgba(0,0,0,.3); animation: lfloat 6s ease-in-out infinite alternate; }
+  @keyframes lfloat { to { transform: translateY(-10px); } }
+  .lglass .lab { font-size: .74rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+  .lglass .num { font-family: var(--font-head); font-weight: 800; font-size: 3rem; line-height: 1.1; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .lglass .num small { font-size: 1.1rem; opacity: .85; }
+  .lglass svg { width: 100%; height: 150px; display: block; margin-top: 10px; overflow: visible; }
+  .lglass .mrow { display: flex; justify-content: space-between; font-size: .72rem; opacity: .75; }
+  .l-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 12px; font-size: .82rem; font-weight: 700; }
+  .l-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+  @keyframes lreveal { to { clip-path: inset(-10px -10px -10px -10px); } }
+
+  .l-stats { margin-top: -48px; position: relative; z-index: 3; }
+  .l-statgrid { display: grid; grid-template-columns: repeat(4, 1fr); background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow-up); overflow: hidden; }
+  .l-stat { padding: 22px 26px; border-right: 1px solid var(--line); }
+  .l-stat:last-child { border-right: 0; }
+  .l-stat .v { font-family: var(--font-head); font-weight: 800; font-size: clamp(1.7rem, 3.4vw, 2.4rem); font-variant-numeric: tabular-nums; color: var(--accent); }
+  .l-stat .l { color: var(--muted); font-weight: 700; font-size: .85rem; }
+  .l-data { margin-top: 44px; }
+  .l-kicker { color: var(--accent); font-weight: 800; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; }
+  .l-title { font-size: clamp(1.5rem, 3.4vw, 2.1rem); margin-top: 6px; font-weight: 800; }
+  .l-two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 22px; }
+  .l-card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); }
+  .l-card h3 { font-size: 1.1rem; }
+  .l-card ul { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+  .l-card li { padding-left: 22px; position: relative; color: var(--muted); }
+  .l-card li b { color: var(--text); }
+  .l-card li::before { content: ""; position: absolute; left: 0; top: .6em; width: 9px; height: 9px; border-radius: 3px; background: linear-gradient(135deg, var(--accent), #f59e0b); }
+  .l-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .l-tags span { font-size: .82rem; font-weight: 700; padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); }
+  #dashboard { scroll-margin-top: 64px; }
+  .backtop { display: inline-block; margin-top: 8px; font-weight: 800; color: var(--accent); text-decoration: none; }
+  @media (max-width: 920px) {
+    .l-grid { grid-template-columns: 1fr; gap: 34px; }
+    .l-two { grid-template-columns: 1fr; }
+    .l-statgrid { grid-template-columns: repeat(2, 1fr); }
+    .l-stat:nth-child(2) { border-right: 0; } .l-stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+  }
+  @media (max-width: 560px) { .landing { padding: 64px 0 80px; } .l-stat { padding: 16px 18px; } }
+
   /* ---- weather effect layer ---- */
   #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
   .fxsel { appearance: auto; padding: 7px 10px; max-width: 150px; }
@@ -310,12 +368,195 @@
     .brand small { display: none; }
     .features { grid-template-columns: 1fr; }
     .tools #tourBtn2 { display: none; }
-    .fxsel { max-width: 112px; }
+    .fxsel { max-width: 140px; font-size: .78rem; padding: 6px 6px; }
     .ctl input[type="range"] { width: 150px; }
     .iconbtn { padding: 6px 10px; font-size: .8rem; } .brand { font-size: 1.02rem; }
     .tabs { top: 62px; }
   }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .reveal { opacity: 1; transform: none; } }
+
+  /* ================= editorial theme (overrides) ================= */
+  :root {
+    --font-head: "Newsreader", Georgia, "Times New Roman", serif;
+    --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --bg: #f3eee3; --surface: #fbf9f4; --surface-2: #eee8da; --text: #1d1b17; --muted: #6a6356; --line: #d8cfbd;
+    --accent: #2a2823; --accent-soft: #ebe4d3; --on-accent: #fbf9f4; --hl: #c2410c;
+    --shadow: none; --shadow-up: none; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16140f; --surface: #1e1b15; --surface-2: #27231b; --text: #ece6d8; --muted: #a39a88; --line: #38332a;
+      --accent: #ece6d8; --accent-soft: #2e2a20; --on-accent: #1c1a17; --hl: #f08a5d;
+      --shadow: none; --shadow-up: none; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16140f; --surface: #1e1b15; --surface-2: #27231b; --text: #ece6d8; --muted: #a39a88; --line: #38332a;
+    --accent: #ece6d8; --accent-soft: #2e2a20; --on-accent: #1c1a17; --hl: #f08a5d;
+    --shadow: none; --shadow-up: none; color-scheme: dark;
+  }
+  body { font-size: 15px; line-height: 1.6; }
+  h1, h2, h3 { font-family: var(--font-head); font-weight: 600; letter-spacing: -.005em; }
+  #progress { background: var(--hl); height: 2px; }
+
+  /* top bar */
+  .topbar { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 1px solid var(--text); }
+  .brand { font-family: var(--font-head); font-weight: 700; font-size: 1.3rem; letter-spacing: -.01em; }
+  .brand svg { display: none; }
+  .brand small { font-family: var(--font-mono); font-weight: 500; font-size: .66rem; border: 1px solid var(--line); border-radius: 2px; text-transform: uppercase; letter-spacing: .06em; }
+  .iconbtn, .fxsel { border-radius: 3px; background: transparent; border: 1px solid var(--text); font-weight: 600; font-size: .82rem; }
+  .iconbtn:hover { transform: none; background: var(--surface-2); border-color: var(--text); }
+  .iconbtn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .iconbtn.primary:hover { background: var(--hl); border-color: var(--hl); color: #fff; }
+
+  /* landing */
+  .landing { background: var(--bg); color: var(--text); padding: 64px 0 70px; border-bottom: 1px solid var(--line); }
+  .landing::before, .landing::after { display: none; }
+  .l-grid { align-items: start; }
+  .l-eyebrow { background: none; border: 0; border-top: 3px solid var(--hl); border-radius: 0; padding: 8px 0 0; font-family: var(--font-mono); font-weight: 500; font-size: .74rem; letter-spacing: .1em; }
+  .l-eyebrow b { display: none; }
+  .landing h1 { font-size: clamp(2.3rem, 5.4vw, 4.2rem); line-height: 1.04; font-weight: 600; letter-spacing: -.02em; margin-top: 22px; }
+  .landing h1 span, .hero h1 span { background: none; -webkit-text-fill-color: currentColor; color: var(--hl); font-style: italic; }
+  .landing .lead { font-size: 1.12rem; opacity: 1; color: var(--muted); max-width: 52ch; }
+  .lbtn { border-radius: 3px; padding: 11px 20px; font-weight: 600; }
+  .lbtn:hover { transform: none; }
+  .lbtn.light { background: var(--text); color: var(--bg); box-shadow: none; }
+  .lbtn.light:hover { background: var(--hl); color: #fff; }
+  .lbtn.ghost { background: transparent; color: var(--text); border: 1px solid var(--text); }
+  .lbtn.ghost:hover { background: var(--surface-2); }
+  .l-trust { display: block; font-family: var(--font-mono); font-size: .76rem; opacity: 1; color: var(--muted); margin-top: 28px; }
+  .lglass { background: var(--surface); border: 1px solid var(--text); border-radius: 2px; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; animation: none; padding: 18px 20px; color: var(--text); }
+  .lglass .lab { font-family: var(--font-mono); font-weight: 500; font-size: .7rem; letter-spacing: .04em; text-transform: none; opacity: 1; color: var(--muted); }
+  .lglass .num { font-family: var(--font-mono); font-weight: 500; font-size: 2.7rem; }
+  .lglass .mrow { opacity: 1; color: var(--muted); font-family: var(--font-mono); }
+  .l-legend { font-family: var(--font-mono); font-weight: 500; font-size: .74rem; }
+  .l-legend i { border-radius: 0; height: 3px; width: 16px; vertical-align: middle; }
+  .l-stats { margin-top: 0; padding-top: 28px; }
+  .l-statgrid { border-radius: 2px; border: 1px solid var(--text); box-shadow: none; background: var(--surface); }
+  .l-stat .v { font-family: var(--font-mono); font-weight: 500; color: var(--text); }
+  .l-stat .l { font-weight: 500; }
+  .l-kicker { font-family: var(--font-mono); font-weight: 500; font-size: .74rem; color: var(--hl); }
+  .l-title { font-weight: 600; }
+  .l-card { border-radius: 2px; box-shadow: none; }
+  .l-card li::before { background: var(--hl); border-radius: 0; width: 6px; height: 6px; top: .7em; }
+  .l-tags span { border-radius: 2px; font-family: var(--font-mono); font-weight: 500; font-size: .74rem; background: transparent; }
+  .backtop { color: var(--hl); font-weight: 600; }
+
+  /* dashboard header block */
+  .hero { background: var(--surface); color: var(--text); border: 1px solid var(--text); border-radius: 2px; box-shadow: none; margin-top: 28px; padding: 26px 28px; }
+  .hero::before, .hero::after { display: none; }
+  .eyebrow { background: none; border: 0; padding: 0; border-radius: 0; font-family: var(--font-mono); font-weight: 500; font-size: .72rem; letter-spacing: .1em; color: var(--hl); }
+  .hero h1 { font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 600; line-height: 1.1; }
+  .hero p.sub { opacity: 1; color: var(--muted); }
+  .pill-s { background: transparent; border: 0; border-left: 2px solid var(--text); border-radius: 0; padding: 2px 12px; font-size: .78rem; color: var(--muted); }
+  .pill-s b { font-family: var(--font-mono); font-weight: 500; color: var(--text); }
+  .chip { background: transparent; color: var(--text); border: 1px solid var(--text); border-radius: 3px; font-weight: 500; padding: 7px 13px; }
+  .chip:hover { background: var(--surface-2); transform: none; }
+  .chip .dot { box-shadow: none; border-radius: 1px; width: 10px; height: 10px; }
+  .chip[aria-pressed="true"] { background: var(--surface-2); }
+  .years select { background: transparent; color: var(--text); border: 1px solid var(--text); border-radius: 3px; }
+  .years select option { color: #1d1b17; }
+  .cta button { border-radius: 3px; font-weight: 600; box-shadow: none; }
+  .cta button:hover { transform: none; }
+  .cta .go { background: var(--text); color: var(--bg); }
+  .cta .go:hover { background: var(--hl); color: #fff; }
+  .cta .ghost { background: transparent; color: var(--text); border: 1px solid var(--text); }
+  .glass { background: var(--bg); border: 1px solid var(--line); border-radius: 2px; backdrop-filter: none; -webkit-backdrop-filter: none; color: var(--text); }
+  .glass .lab { font-family: var(--font-mono); font-weight: 500; text-transform: none; letter-spacing: .02em; opacity: 1; color: var(--muted); }
+  .glass .num { font-family: var(--font-mono); font-weight: 500; }
+  .glass .cap, .glass .mrow { opacity: 1; color: var(--muted); }
+  .fxnote { background: none; border: 0; border-radius: 0; padding: 0; color: var(--muted); font-family: var(--font-mono); font-weight: 400; font-size: .74rem; }
+  .fxnote::before { border-radius: 0; box-shadow: none; background: var(--hl); width: 6px; height: 6px; }
+
+  /* section titles, pipeline, features */
+  .section-title { border-top: 1px solid var(--text); padding-top: 10px; margin-top: 38px; }
+  .section-title h2 { font-size: 1.35rem; }
+  .section-title span { font-family: var(--font-mono); font-size: .74rem; }
+  .pipe { gap: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); }
+  .step { border: 0; border-right: 1px solid var(--line); border-radius: 0; box-shadow: none; background: transparent; }
+  .step:last-child { border-right: 0; }
+  .step:hover { transform: none; box-shadow: none; background: var(--surface-2); border-color: var(--line); }
+  .step:not(:last-child)::after { display: none; }
+  .step .n { width: auto; height: auto; background: none; color: var(--hl); display: block; font-family: var(--font-mono); font-weight: 500; font-size: .74rem; border-radius: 0; place-items: unset; }
+  .step .n::before { content: "Step "; }
+  .step code, .how code, .flow code, .note code, td code { border-radius: 2px; font-family: var(--font-mono); background: var(--accent-soft); color: var(--text); }
+  .step .m { font-family: var(--font-mono); font-weight: 500; font-size: .8rem; }
+  .features { gap: 0; border: 1px solid var(--line); border-radius: 2px; background: var(--surface); }
+  .feat { border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 0; box-shadow: none; background: transparent; }
+  .feat:nth-child(4n) { border-right: 0; } .feat:nth-last-child(-n+4) { border-bottom: 0; }
+  .feat:hover { transform: none; background: var(--surface-2); box-shadow: none; }
+  .feat .ic { display: none; }
+  .feat h3 { margin-top: 0; font-size: 1.08rem; }
+  .feat .new { border-radius: 2px; background: var(--hl); color: #fff; font-family: var(--font-mono); font-weight: 500; }
+
+  /* numbers, insights */
+  .kpi { border-radius: 2px; box-shadow: none; border-top: 3px solid var(--text); border-left: 1px solid var(--line); }
+  .kpi::before { display: none; }
+  .kpi:hover { transform: none; box-shadow: none; }
+  .kpi .ic { display: none; }
+  .kpi .label { font-family: var(--font-mono); font-weight: 500; font-size: .7rem; letter-spacing: .04em; }
+  .kpi .value { font-family: var(--font-mono); font-weight: 500; font-size: 1.7rem; }
+  .highlights { border-radius: 2px; box-shadow: none; }
+  .highlights h2 { font-family: var(--font-mono); font-weight: 500; font-size: .74rem; }
+  .highlights li::before { background: var(--hl); border-radius: 0; width: 6px; height: 6px; top: .7em; }
+
+  /* tabs as an underlined strip */
+  .tabs { background: var(--bg); border: 0; border-bottom: 1px solid var(--text); border-radius: 0; box-shadow: none; padding: 0; gap: 0; top: 60px; }
+  .tab { border-radius: 0; padding: 12px 15px; font-weight: 600; font-size: .9rem; border-bottom: 3px solid transparent; margin-bottom: -1px; }
+  .tab:hover { background: transparent; color: var(--text); border-bottom-color: var(--line); }
+  .tab[aria-selected="true"] { background: transparent; color: var(--text); border-bottom-color: var(--hl); }
+  .tabs .tab.hot::after { border-radius: 0; background: var(--hl); }
+
+  /* content boxes */
+  .box, .citycard, .mk, .q, .flow li, .dateinput, .search { border-radius: 2px; box-shadow: none; }
+  .citycard { border-top-width: 4px; }
+  .citycard:hover { transform: none; box-shadow: none; }
+  .citycard .big { font-family: var(--font-mono); font-weight: 500; }
+  .box h2 { font-size: 1.15rem; }
+  .takeaway { border-radius: 0; background: var(--surface-2); border-left: 3px solid var(--hl); }
+  .takeaway b { color: var(--hl); }
+  .takeaway.warn { background: var(--surface-2); border-left-color: var(--text); }
+  .takeaway.warn b { color: var(--text); }
+  .seg { border-radius: 3px; background: transparent; border-color: var(--text); }
+  .seg button { border-radius: 2px; font-weight: 600; }
+  .seg button[aria-pressed="true"], .pill[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .pill { border-radius: 3px; background: transparent; border-color: var(--line); font-weight: 600; }
+  .pill:hover { transform: none; border-color: var(--text); }
+  .badge { border-radius: 2px; background: var(--surface-2); color: var(--text); font-family: var(--font-mono); font-weight: 500; }
+  .badge.pick { background: var(--hl); color: #fff; }
+  .btn { border-radius: 3px; background: var(--text); color: var(--bg); font-weight: 600; }
+  .mk { background: var(--surface-2); }
+  .mk::before { display: none; }
+  .mk { border-top: 3px solid var(--text); }
+  .mk .value { font-family: var(--font-mono); font-weight: 500; }
+  .q .v { font-family: var(--font-mono); font-weight: 500; }
+  .q.ok .v { color: #3f7d3a; }
+  .flow li::before { border-radius: 0; background: none; color: var(--hl); font-family: var(--font-mono); font-weight: 500; }
+  .tag { border-radius: 2px; font-family: var(--font-mono); font-weight: 500; font-size: .74rem; background: transparent; }
+  .legend .bar { border-radius: 0; }
+  #error { border-radius: 2px; }
+  footer { font-family: var(--font-mono); font-size: .78rem; }
+
+  /* tour */
+  #tour { background: #1d1b17; border: 1px solid #1d1b17; border-radius: 2px; box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+  #tour .tstep { color: #f08a5d; font-family: var(--font-mono); font-weight: 500; }
+  #tour h3 { font-weight: 600; }
+  #tour button { border-radius: 3px; }
+  #tour button.next { background: #f08a5d; border-color: #f08a5d; color: #1d1b17; }
+  #tour .dots i { border-radius: 0; } #tour .dots i.on { background: #f08a5d; }
+  .spot { outline: 2px solid var(--hl); outline-offset: 6px; border-radius: 2px; }
+
+  @media (max-width: 900px) {
+    .step { border-right: 0; border-bottom: 1px solid var(--line); } .step:last-child { border-bottom: 0; }
+    .feat:nth-child(4n) { border-right: 1px solid var(--line); } .feat:nth-child(2n) { border-right: 0; }
+    .feat:nth-last-child(-n+4) { border-bottom: 1px solid var(--line); } .feat:nth-last-child(-n+2) { border-bottom: 0; }
+  }
+  @media (max-width: 560px) {
+    .feat { border-right: 0 !important; border-bottom: 1px solid var(--line) !important; } .feat:last-child { border-bottom: 0 !important; }
+    .landing { padding: 40px 0 48px; }
+    .hero { padding: 20px 16px; }
+  }
 </style>
 </head>
 <body>
@@ -346,11 +587,67 @@
   </div>
 </header>
 
-<main class="wrap" id="top">
+<section class="landing" id="top">
+  <div class="wrap l-grid">
+    <div>
+      <span class="l-eyebrow">ETL + EDA project</span>
+      <h1>Daily weather in Lahore, Karachi and Islamabad, <span>2020 to 2025</span></h1>
+      <p class="lead">We pulled six years of daily temperature, rainfall and wind from the Open-Meteo archive, checked every row, stored the result in a SQLite database and built this page to explore it.</p>
+      <div class="l-cta">
+        <a class="lbtn light" href="#dashboard">Open the dashboard</a>
+        <button class="lbtn ghost" id="tourBtn3" type="button">Take the guided tour</button>
+      </div>
+      <div class="l-trust">Source: Open-Meteo Archive API &middot; Validated with Pydantic &middot; Stored in SQLite</div>
+    </div>
+    <aside class="lglass" aria-label="Average temperature through the year">
+      <div class="lab">Fig. 1 &nbsp;Average temperature by month</div>
+      <div class="num"><span id="lAvg">-</span><small> °C</small></div>
+      <svg id="lSpark" viewBox="0 0 300 150" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="mrow"><span>Jan</span><span>Apr</span><span>Jul</span><span>Oct</span><span>Dec</span></div>
+      <div class="l-legend" id="lLegend"></div>
+    </aside>
+  </div>
+</section>
+
+<div class="wrap l-stats">
+  <div class="l-statgrid reveal" id="lStats">
+    <div class="l-stat"><div class="v">-</div><div class="l">cities</div></div>
+    <div class="l-stat"><div class="v">-</div><div class="l">days per city</div></div>
+    <div class="l-stat"><div class="v">-</div><div class="l">daily records</div></div>
+    <div class="l-stat"><div class="v">-</div><div class="l">rows rejected</div></div>
+  </div>
+</div>
+
+<div class="wrap l-data">
+  <div class="l-kicker reveal">About the data</div>
+  <h2 class="l-title reveal">Where the numbers come from</h2>
+  <div class="l-two">
+    <div class="l-card reveal">
+      <h3>Data source</h3>
+      <ul>
+        <li><b>Open-Meteo Archive API.</b> Free and needs no API key.</li>
+        <li><b>1 January 2020 to 31 December 2025.</b> Six full years, so every season repeats several times.</li>
+        <li><b>Five daily values:</b> maximum, minimum and mean temperature, rainfall and maximum wind speed.</li>
+        <li><b>Reanalysis data.</b> It shows patterns very well, but it is not a single weather station reading.</li>
+      </ul>
+    </div>
+    <div class="l-card reveal">
+      <h3>Quality and tools</h3>
+      <ul>
+        <li><b>Every row is validated.</b> Temperatures must be between -60 and 60 °C, rainfall and wind cannot be negative.</li>
+        <li><b>Nothing was rejected,</b> and no values were missing.</li>
+        <li><b>A rainy day</b> means 1 mm of rain or more.</li>
+      </ul>
+      <div class="l-tags"><span>Python</span><span>requests</span><span>pandas</span><span>Pydantic</span><span>SQLite</span><span>matplotlib</span><span>Chart.js</span><span>GitHub</span><span>Vercel</span></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="dashboard">
   <section class="hero" id="hero">
     <div class="hero-grid">
       <div>
-        <span class="eyebrow"><b></b> Open-Meteo data, 2020 to 2025</span>
+        <span class="eyebrow">Dashboard</span>
         <h1 id="heroTitle">Pakistan weather, <span>explored</span></h1>
         <p class="sub" id="heroSub">Daily temperature, rainfall and wind for Lahore, Karachi and Islamabad, collected with an ETL pipeline and analysed with EDA.</p>
         <div class="pills" id="heroPills"></div>
@@ -637,7 +934,7 @@
     </div>
   </div>
 
-  <footer>WeatherLens | ETL and EDA project | Data: Open-Meteo</footer>
+  <footer>WeatherLens | ETL and EDA project | Data: Open-Meteo<br><a class="backtop" href="#top">Back to top</a></footer>
 </main>
 
 <div id="tour" role="dialog" aria-live="polite" aria-label="Guided tour">
@@ -653,15 +950,16 @@
 <script>
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const MONTH_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const COLORS = { Lahore: "#ef4444", Karachi: "#0ea5e9", Islamabad: "#22c55e" };
-const FALLBACK = ["#a855f7", "#f59e0b", "#14b8a6", "#ec4899"];
+const COLORS = { Lahore: "#c2410c", Karachi: "#1d4e89", Islamabad: "#3f7d3a" };
+const COLORS_DARK = { Lahore: "#f08a5d", Karachi: "#6aa6e0", Islamabad: "#8fc27a" };
+const FALLBACK = ["#7c5a9e", "#b8860b", "#2a7f7f", "#a8466b"];
 const REJECTED = 0; // rows rejected by Pydantic in the real pipeline run (printed by pipeline.py)
 
 let ALL = [], BY = {}, YEARS = [], CITIES = [], selected = new Set(), charts = {}, query = "", monthSel = new Date().getMonth() + 1, win = 30;
 
 const $ = (id) => document.getElementById(id);
 const sel = () => CITIES.filter((c) => selected.has(c));
-const colorOf = (c) => COLORS[c] || FALLBACK[CITIES.indexOf(c) % FALLBACK.length];
+const colorOf = (c) => (isDark() ? COLORS_DARK[c] : COLORS[c]) || FALLBACK[CITIES.indexOf(c) % FALLBACK.length];
 const mean = (a) => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : null);
 const std = (a) => { const m = mean(a); return Math.sqrt(mean(a.map((x) => (x - m) ** 2))); };
 const sstd = (a) => { const m = mean(a); return a.length > 1 ? Math.sqrt(a.reduce((s, x) => s + (x - m) ** 2, 0) / (a.length - 1)) : 0; };
@@ -698,6 +996,7 @@ $("themeBtn").addEventListener("click", () => {
   document.documentElement.setAttribute("data-theme", next);
   try { localStorage.setItem("wl-theme", next); } catch (e) {}
   syncThemeUI();
+  document.querySelectorAll(".chip").forEach((el) => el.style.setProperty("--c", colorOf(el.dataset.city)));
   if (ALL.length) render();
 });
 syncThemeUI();
@@ -832,6 +1131,7 @@ function init(data) {
   setupReveal();
   render();
   fxAuto();
+  landingInit();
   if (location.hash === "#tour") setTimeout(startTour, 600);
 }
 
@@ -902,10 +1202,10 @@ function drawSpark(rows) {
   const lo = Math.min(...ok), hi = Math.max(...ok), W = 300, H = 86, pad = 8;
   const pts = m.map((v, i) => [(i / 11) * W, H - pad - ((v - lo) / (hi - lo || 1)) * (H - pad * 2)]);
   const line = pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
-  const peak = m.indexOf(hi), cold = m.indexOf(lo);
-  $("spark").innerHTML = `<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde68a" stop-opacity=".55"/><stop offset="1" stop-color="#fde68a" stop-opacity="0"/></linearGradient></defs>
-    <path d="${line} L${W} ${H} L0 ${H} Z" fill="url(#sg)"/><path d="${line}" fill="none" stroke="#fde68a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
-    <circle cx="${pts[peak][0]}" cy="${pts[peak][1]}" r="4.5" fill="#fff"/>`;
+  const peak = m.indexOf(hi), cold = m.indexOf(lo), ac = cssv("--hl");
+  $("spark").innerHTML = `<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${ac}" stop-opacity=".30"/><stop offset="1" stop-color="${ac}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${line} L${W} ${H} L0 ${H} Z" fill="url(#sg)"/><path d="${line}" fill="none" stroke="${ac}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${pts[peak][0]}" cy="${pts[peak][1]}" r="4.5" fill="${ac}"/>`;
   $("heroCap").textContent = `Peak in ${MONTH_FULL[peak]} (${fmt(hi)} °C), coolest in ${MONTH_FULL[cold]} (${fmt(lo)} °C)`;
 }
 
@@ -1006,7 +1306,7 @@ function drawHeatmap(rows) {
 function drawRain(rows) {
   const vals = MONTHS.map((_, m) => mean(rows.filter((r) => r.month === m + 1).map((r) => r.rain)));
   const max = Math.max(...vals), peak = vals.indexOf(max);
-  const base = isDark() ? "56, 189, 248" : "14, 116, 144";
+  const base = isDark() ? "106, 166, 224" : "29, 78, 137";
   const monsoon = vals[6] + vals[7];
   $("tkRain").innerHTML = `<b>Reading it:</b> ${MONTH_FULL[peak]} is the wettest month at ${fmt(max, 1)} mm per day. July and August together average ${fmt(monsoon / 2, 1)} mm per day, which is the monsoon season.`;
   makeChart("cRain", {
@@ -1243,7 +1543,7 @@ function drawCompare() {
   }
   makeChart("cCmp", { type: "bar",
     data: { labels: cities, datasets: [
-      { label: label(a), data: rows.map((r) => (r.A ? r.A.avg : null)), backgroundColor: "#94a3b8", borderRadius: 6 },
+      { label: label(a), data: rows.map((r) => (r.A ? r.A.avg : null)), backgroundColor: isDark() ? "#6f685b" : "#b9b09d", borderRadius: 2 },
       { label: label(b), data: rows.map((r) => (r.B ? r.B.avg : null)), backgroundColor: cssv("--accent"), borderRadius: 6 } ] },
     options: { plugins: { legend: legendOpts, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y)} °C` } } },
       scales: { x: { grid: { display: false } }, y: { title: { display: true, text: "Average temperature (°C)" } } } } });
@@ -1345,6 +1645,37 @@ function drawYearTrend() {
     options: { interaction: { mode: "index", intersect: false },
       plugins: { legend: legendOpts, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y, 2)} °C` } } },
       scales: { x: { grid: { display: false } }, y: { title: { display: true, text: "Average temperature (°C)" } } } } });
+}
+
+
+/* ---------- landing section ---------- */
+function landingInit() {
+  const L_COL = new Proxy({}, { get: (_, c) => colorOf(c) });
+  const days = BY[CITIES[0]].length, monthly = {};
+  CITIES.forEach((c) => { monthly[c] = MONTHS.map((_, m) => mean(BY[c].filter((r) => r.month === m + 1).map((r) => r.tmean))); });
+  $("lAvg").textContent = fmt(mean(ALL.map((r) => r.tmean)));
+  const flat = CITIES.flatMap((c) => monthly[c]).filter((v) => v !== null);
+  const lo = Math.min(...flat), hi = Math.max(...flat), W = 300, H = 150, pad = 10;
+  const y = (v) => H - pad - ((v - lo) / (hi - lo || 1)) * (H - pad * 2);
+  $("lSpark").innerHTML = CITIES.map((c, k) => {
+    const pts = monthly[c].map((v, i) => (i ? "L" : "M") + ((i / 11) * W).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
+    return `<path d="${pts}" fill="none" stroke="${L_COL[c] || "#fde68a"}" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" style="clip-path:inset(-10px ${reduceMotion ? "-10px" : "100%"} -10px -10px);animation:lreveal 1.8s ${0.2 + k * 0.25}s ease forwards"/>`;
+  }).join("");
+  $("lLegend").innerHTML = CITIES.map((c) => `<span><i style="background:${L_COL[c] || "#fde68a"}"></i>${c}</span>`).join("");
+
+  const targets = [CITIES.length, days, ALL.length, 0];
+  const cells = [...document.querySelectorAll("#lStats .v")];
+  const run = () => cells.forEach((el, i) => {
+    if (reduceMotion) { el.textContent = targets[i].toLocaleString(); return; }
+    const t0 = performance.now();
+    const tick = (t) => { const p = Math.min(1, (t - t0) / 1400), e = 1 - Math.pow(1 - p, 3); el.textContent = Math.round(targets[i] * e).toLocaleString(); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((l) => { if (l[0].isIntersecting) { run(); io.disconnect(); } }, { threshold: 0.3 });
+    io.observe($("lStats"));
+  } else run();
+  $("tourBtn3").addEventListener("click", startTour);
 }
 
 /* ---------- weather effects (canvas) ---------- */
@@ -1475,7 +1806,7 @@ function fxAuto() {
 
 /* ---------- guided tour ---------- */
 const TOUR = [
-  { target: "hero", tab: null, t: "Welcome to WeatherLens", x: "A dashboard built on top of an ETL and EDA pipeline. Daily weather of Lahore, Karachi and Islamabad from 2020 to 2025. Use the city buttons and year boxes here to filter everything below. The weather effect in the top bar follows the season." },
+  { target: "top", tab: null, t: "Welcome to WeatherLens", x: "A dashboard built on top of an ETL and EDA pipeline. Daily weather of Lahore, Karachi and Islamabad from 2020 to 2025. Further down, the city buttons and year boxes filter everything. The weather effect in the top bar follows the season." },
   { target: "pipeline", tab: null, t: "1. How the data was built", x: "Extract the data from the Open-Meteo API, transform and validate it with pandas and Pydantic, load it into a SQLite database, analyse it with EDA, then publish it to this page." },
   { target: "kpis", tab: null, t: "2. Key numbers", x: "These cards react to the filters: days of data, average temperature, the hottest day and the share of rainy days (1 mm or more)." },
   { target: "insightsBox", tab: null, t: "3. What the data says", x: "Plain sentences generated from the data: hottest and coldest month, wettest month, and which city is steadiest." },
